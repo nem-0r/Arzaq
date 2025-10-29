@@ -1,0 +1,12 @@
+.title {
+  font-size: clamp(20px, 4.5vw, 24px);
+  margin-bottom: 20px;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.postsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}

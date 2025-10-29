@@ -1,0 +1,35 @@
+.header {
+  background: var(--primary-green);
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px var(--shadow);
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--background-white);
+  margin: 0;
+}
+
+@media (min-width: 1024px) {
+  .header {
+    padding: 20px 40px;
+  }
+  
+  .logo {
+    font-size: 28px;
+  }
+}
+
+@media (max-width: 480px) {
+  .logo {
+    font-size: 20px;
+  }
+}
