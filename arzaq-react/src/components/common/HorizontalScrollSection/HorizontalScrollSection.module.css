@@ -1,0 +1,61 @@
+/* src/components/common/HorizontalScrollSection/HorizontalScrollSection.module.css */
+.section {
+  margin-bottom: var(--spacing-3xl);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-lg);
+  padding: 0 var(--spacing-xs);
+}
+
+.title {
+  font-size: clamp(18px, 4vw, 22px);
+  font-weight: 600;
+  color: var(--text-dark);
+  margin: 0;
+}
+
+.viewAllBtn {
+  background: none;
+  border: none;
+  color: var(--primary-green-dark);
+  font-size: 14px;
+  font-weight: 500;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.viewAllBtn:hover {
+  background: var(--background-gray);
+  color: var(--primary-green);
+}
+
+.scrollContainer {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.scrollContainer::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+.scrollContent {
+  display: flex;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-xs) var(--spacing-xs);
+  padding-bottom: var(--spacing-md);
+}
+
+/* Smooth scrolling */
+@media (prefers-reduced-motion: no-preference) {
+  .scrollContainer {
+    scroll-behavior: smooth;
+  }
+}

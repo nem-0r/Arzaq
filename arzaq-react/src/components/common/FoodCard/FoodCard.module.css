@@ -1,0 +1,130 @@
+/* src/components/common/FoodCard/FoodCard.module.css */
+.card {
+  background: var(--background-white);
+  border-radius: var(--radius-md);
+  box-shadow: 0 2px 8px var(--shadow);
+  overflow: hidden;
+  min-width: 200px;
+  max-width: 200px;
+  flex-shrink: 0;
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+  cursor: pointer;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 16px var(--shadow-md);
+}
+
+.imageContainer {
+  position: relative;
+  width: 100%;
+  height: 140px;
+  overflow: hidden;
+  background: var(--background-gray);
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--transition-slow);
+}
+
+.card:hover .image {
+  transform: scale(1.05);
+}
+
+.discountBadge {
+  position: absolute;
+  top: var(--spacing-sm);
+  right: var(--spacing-sm);
+  background: var(--accent-orange);
+  color: var(--background-white);
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.content {
+  padding: var(--spacing-md);
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin: 0 0 var(--spacing-xs) 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.restaurant {
+  font-size: 13px;
+  color: var(--text-gray);
+  margin: 0 0 var(--spacing-md) 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.priceContainer {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.price {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--primary-green-dark);
+}
+
+.oldPrice {
+  font-size: 14px;
+  color: var(--text-light);
+  text-decoration: line-through;
+}
+
+.addBtn {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  background: var(--primary-green);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.addBtn:hover {
+  background: var(--primary-green-dark);
+  transform: scale(1.05);
+}
+
+.addBtn:active {
+  transform: scale(0.95);
+}
+
+/* Mobile adjustments */
+@media (max-width: 480px) {
+  .card {
+    min-width: 180px;
+    max-width: 180px;
+  }
+
+  .imageContainer {
+    height: 120px;
+  }
+}

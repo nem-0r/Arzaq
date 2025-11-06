@@ -2,9 +2,29 @@
 
 export const isValidEmail = (email) => {
   if (!email) return false;
-  return email.includes('@') && 
-         email.includes('.') && 
-         email.indexOf('@') < email.lastIndexOf('.');
+
+  // RFC 5322 compliant email regex with proper TLD validation
+  const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+
+  if (!emailRegex.test(email)) {
+    return false;
+  }
+
+  // Additional check: domain must have valid TLD (at least 2 characters)
+  const parts = email.split('@');
+  if (parts.length !== 2) return false;
+
+  const domain = parts[1];
+  const domainParts = domain.split('.');
+
+  // Must have at least domain and TLD (e.g., gmail.com)
+  if (domainParts.length < 2) return false;
+
+  // TLD must be at least 2 characters and only letters
+  const tld = domainParts[domainParts.length - 1];
+  const tldRegex = /^[a-zA-Z]{2,}$/;
+
+  return tldRegex.test(tld);
 };
 
 export const validateFullName = (name) => {

@@ -1,9 +1,9 @@
 // src/components/features/Auth/LoginForm/LoginForm.jsx
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../../hooks/useAuth';
 import { useTranslation } from '../../../../hooks/useTranslation';
-import { validateEmail, validatePassword } from '../../../../utils/validation';
+import { useFormValidation } from '../../../../hooks/useFormValidation';
 import styles from './LoginForm.module.css';
 
 const LoginForm = () => {
@@ -11,77 +11,77 @@ const LoginForm = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    remember: false
-  });
-
-  const [errors, setErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: null }));
+  // Validation rules
+  const validationRules = {
+    email: {
+      required: true,
+      email: true
+    },
+    password: {
+      required: true,
+      minLength: 6
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setErrors({});
+  // Form validation hook
+  const {
+    values,
+    errors,
+    touched,
+    isSubmitting,
+    handleChange,
+    handleBlur,
+    handleSubmit,
+    setFieldError
+  } = useFormValidation(
+    {
+      email: '',
+      password: '',
+      remember: false
+    },
+    validationRules
+  );
 
-    // Validate
-    const emailError = validateEmail(formData.email);
-    const passwordError = validatePassword(formData.password);
+  // Custom handler for checkbox
+  const handleCheckboxChange = (e) => {
+    const { name, checked } = e.target;
+    handleChange({ target: { name, value: checked } });
+  };
 
-    if (emailError || passwordError) {
-      setErrors({
-        email: emailError,
-        password: passwordError
-      });
-      return;
-    }
-
-    setIsSubmitting(true);
-
+  // Submit handler
+  const onSubmit = async (formValues) => {
     try {
-      await login(formData.email, formData.password);
+      await login(formValues.email, formValues.password);
       alert(t('alert_login_success'));
       navigate('/');
     } catch (error) {
       if (error.message === 'error_email_notfound') {
-        setErrors({ email: t('error_email_notfound') });
+        setFieldError('email', t('error_email_notfound'));
       } else if (error.message === 'error_password_incorrect') {
-        setErrors({ password: t('error_password_incorrect') });
+        setFieldError('password', t('error_password_incorrect'));
       } else {
         alert(t('error_network') || 'An error occurred');
       }
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className={styles.authForm}>
+    <form onSubmit={handleSubmit(onSubmit)} className={styles.authForm}>
       <div className={styles.formGroup}>
         <label htmlFor="email">{t('login_email_label')}</label>
         <input
           type="email"
           id="email"
           name="email"
-          value={formData.email}
+          value={values.email}
           onChange={handleChange}
+          onBlur={handleBlur}
           placeholder={t('login_email_placeholder')}
           disabled={isSubmitting}
+          className={touched.email && errors.email ? styles.inputError : ''}
         />
-        {errors.email && (
-          <span className={styles.errorMessage}>{t(errors.email)}</span>
+        {touched.email && errors.email && (
+          <span className={styles.errorMessage}>{errors.email}</span>
         )}
       </div>
 
@@ -91,13 +91,15 @@ const LoginForm = () => {
           type="password"
           id="password"
           name="password"
-          value={formData.password}
+          value={values.password}
           onChange={handleChange}
+          onBlur={handleBlur}
           placeholder={t('login_password_placeholder')}
           disabled={isSubmitting}
+          className={touched.password && errors.password ? styles.inputError : ''}
         />
-        {errors.password && (
-          <span className={styles.errorMessage}>{t(errors.password)}</span>
+        {touched.password && errors.password && (
+          <span className={styles.errorMessage}>{errors.password}</span>
         )}
       </div>
 
@@ -106,15 +108,19 @@ const LoginForm = () => {
           <input
             type="checkbox"
             name="remember"
-            checked={formData.remember}
-            onChange={handleChange}
+            checked={values.remember}
+            onChange={handleCheckboxChange}
             disabled={isSubmitting}
           />
           <span>{t('login_remember')}</span>
         </label>
-        <a href="#" className={styles.forgotLink}>
+        <button
+          type="button"
+          className={styles.forgotLink}
+          onClick={() => alert('Password reset feature coming soon!')}
+        >
           {t('login_forgot')}
-        </a>
+        </button>
       </div>
 
       <button

@@ -1,14 +1,9 @@
 // src/components/features/Auth/RegisterForm/RegisterForm.jsx
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../../hooks/useAuth';
 import { useTranslation } from '../../../../hooks/useTranslation';
-import {
-  validateFullName,
-  validateEmail,
-  validatePassword,
-  validateConfirmPassword
-} from '../../../../utils/validation';
+import { useFormValidation } from '../../../../hooks/useFormValidation';
 import styles from '../LoginForm/LoginForm.module.css'; // Reuse same styles
 
 const RegisterForm = () => {
@@ -16,87 +11,89 @@ const RegisterForm = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
-    password: '',
-    confirmPassword: ''
-  });
-
-  const [errors, setErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value
-    }));
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: null }));
+  // Validation rules
+  const validationRules = {
+    fullName: {
+      required: true,
+      minLength: 2,
+      maxLength: 50
+    },
+    email: {
+      required: true,
+      email: true
+    },
+    password: {
+      required: true,
+      password: true // Uses strong password validation
+    },
+    confirmPassword: {
+      required: true,
+      matches: {
+        value: '', // Will be set dynamically
+        message: 'Passwords do not match'
+      }
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setErrors({});
+  // Form validation hook
+  const {
+    values,
+    errors,
+    touched,
+    isSubmitting,
+    handleChange,
+    handleBlur,
+    handleSubmit,
+    setFieldError
+  } = useFormValidation(
+    {
+      fullName: '',
+      email: '',
+      password: '',
+      confirmPassword: ''
+    },
+    validationRules
+  );
 
-    // Validate all fields
-    const nameError = validateFullName(formData.fullName);
-    const emailError = validateEmail(formData.email);
-    const passwordError = validatePassword(formData.password);
-    const confirmPasswordError = validateConfirmPassword(
-      formData.password,
-      formData.confirmPassword
-    );
+  // Update confirm password validation rule dynamically
+  validationRules.confirmPassword.matches.value = values.password;
 
-    if (nameError || emailError || passwordError || confirmPasswordError) {
-      setErrors({
-        fullName: nameError,
-        email: emailError,
-        password: passwordError,
-        confirmPassword: confirmPasswordError
-      });
-      return;
-    }
-
-    setIsSubmitting(true);
-
+  // Submit handler
+  const onSubmit = async (formValues) => {
     try {
       await register({
-        fullName: formData.fullName,
-        email: formData.email,
-        password: formData.password
+        fullName: formValues.fullName,
+        email: formValues.email,
+        password: formValues.password
       });
       alert(t('alert_register_success'));
       navigate('/login');
     } catch (error) {
       if (error.message === 'error_email_exists') {
-        setErrors({ email: t('error_email_exists') });
+        setFieldError('email', t('error_email_exists'));
       } else {
         alert(t('error_network') || 'An error occurred');
       }
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className={styles.authForm}>
+    <form onSubmit={handleSubmit(onSubmit)} className={styles.authForm}>
       <div className={styles.formGroup}>
         <label htmlFor="fullName">{t('register_fullname_label')}</label>
         <input
           type="text"
           id="fullName"
           name="fullName"
-          value={formData.fullName}
+          value={values.fullName}
           onChange={handleChange}
+          onBlur={handleBlur}
           placeholder={t('register_fullname_placeholder')}
           disabled={isSubmitting}
+          className={touched.fullName && errors.fullName ? styles.inputError : ''}
         />
-        {errors.fullName && (
-          <span className={styles.errorMessage}>{t(errors.fullName)}</span>
+        {touched.fullName && errors.fullName && (
+          <span className={styles.errorMessage}>{errors.fullName}</span>
         )}
       </div>
 
@@ -106,13 +103,15 @@ const RegisterForm = () => {
           type="email"
           id="email"
           name="email"
-          value={formData.email}
+          value={values.email}
           onChange={handleChange}
+          onBlur={handleBlur}
           placeholder={t('register_email_placeholder')}
           disabled={isSubmitting}
+          className={touched.email && errors.email ? styles.inputError : ''}
         />
-        {errors.email && (
-          <span className={styles.errorMessage}>{t(errors.email)}</span>
+        {touched.email && errors.email && (
+          <span className={styles.errorMessage}>{errors.email}</span>
         )}
       </div>
 
@@ -122,13 +121,15 @@ const RegisterForm = () => {
           type="password"
           id="password"
           name="password"
-          value={formData.password}
+          value={values.password}
           onChange={handleChange}
+          onBlur={handleBlur}
           placeholder={t('register_password_placeholder')}
           disabled={isSubmitting}
+          className={touched.password && errors.password ? styles.inputError : ''}
         />
-        {errors.password && (
-          <span className={styles.errorMessage}>{t(errors.password)}</span>
+        {touched.password && errors.password && (
+          <span className={styles.errorMessage}>{errors.password}</span>
         )}
       </div>
 
@@ -138,15 +139,15 @@ const RegisterForm = () => {
           type="password"
           id="confirmPassword"
           name="confirmPassword"
-          value={formData.confirmPassword}
+          value={values.confirmPassword}
           onChange={handleChange}
+          onBlur={handleBlur}
           placeholder={t('register_confirm_placeholder')}
           disabled={isSubmitting}
+          className={touched.confirmPassword && errors.confirmPassword ? styles.inputError : ''}
         />
-        {errors.confirmPassword && (
-          <span className={styles.errorMessage}>
-            {t(errors.confirmPassword)}
-          </span>
+        {touched.confirmPassword && errors.confirmPassword && (
+          <span className={styles.errorMessage}>{errors.confirmPassword}</span>
         )}
       </div>
 

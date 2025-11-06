@@ -2,9 +2,9 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../components/layout/Header/Header';
-import SearchBar from '../../components/layout/SearchBar/SearchBar';
 import BottomNav from '../../components/layout/BottomNav/BottomNav';
 import ProfileHeader from '../../components/features/Profile/ProfileHeader/ProfileHeader';
+import UserImpact from '../../components/features/Profile/UserImpact/UserImpact';
 import ProfileMenu from '../../components/features/Profile/ProfileMenu/ProfileMenu';
 import { useAuth } from '../../hooks/useAuth';
 import { useTranslation } from '../../hooks/useTranslation';
@@ -52,10 +52,12 @@ const ProfilePage = () => {
   return (
     <div className="page-container">
       <Header />
-      <SearchBar />
 
       <main className={`main-content ${styles.profileContent}`}>
         <ProfileHeader user={currentUser} />
+
+        {/* User Impact Stats - Demo Version */}
+        <UserImpact />
 
         <ProfileMenu
           title={t('profile_section_account')}
