@@ -3,6 +3,7 @@
   "search_placeholder": "Жақын маңдағы тамақты іздеу",
   "nav_home": "Басты бет",
   "nav_map": "Карта",
+  "nav_cart": "Себет",
   "nav_community": "Қоғамдастық",
   "nav_profile": "Профиль",
   
@@ -97,5 +98,29 @@
   "map_desc_restaurant": "Алып кетуге ыстық тағамдар",
   "map_your_location": "Сіздің орныңыз",
   "map_quantity_available": "бар",
-  "map_contact_details": "Толығырақ байланысыңыз"
+  "map_contact_details": "Толығырақ байланысыңыз",
+
+  "cart_empty_title": "Себетіңіз бос",
+  "cart_empty_description": "Тапсырысты бастау үшін мәзірден тағамдарды қосыңыз",
+  "cart_browse_food": "Тағамдарды қарау",
+  "cart_items": "тауарлар",
+  "cart_clear_all": "Барлығын тазалау",
+  "cart_order_summary": "Тапсырыс қорытындысы",
+  "cart_subtotal": "Сома",
+  "cart_delivery_fee": "Жеткізу",
+  "cart_tax": "Салық (10%)",
+  "cart_total": "Барлығы",
+  "cart_checkout": "Тапсырыс беру",
+  "cart_confirm_order": "Тапсырысты растау",
+  "cart_confirm_message": "Бұл тапсырысты растауды қалайсыз ба?",
+  "cart_cancel": "Болдырмау",
+  "cart_confirm": "Растау",
+  "cart_order_success": "Тапсырыс сәтті берілді!",
+  "cart_order_success_message": "Тапсырысыңыз үшін рахмет. Жақында сізбен байланысамыз.",
+  "cart_increase": "Санын көбейту",
+  "cart_decrease": "Санын азайту",
+  "cart_remove": "Себеттен жою",
+  "cart_added_to_cart": "себетке қосылды",
+  "cart_login_required": "Тапсырыс беру үшін кіріңіз",
+  "cart_login_message": "Тапсырысты жалғастыру үшін аккаунтқа кіріңіз"
 }

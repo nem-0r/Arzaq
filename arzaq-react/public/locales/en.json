@@ -3,6 +3,7 @@
   "search_placeholder": "Find nearby food",
   "nav_home": "Home",
   "nav_map": "Map",
+  "nav_cart": "Cart",
   "nav_community": "Community",
   "nav_profile": "Profile",
   
@@ -97,5 +98,29 @@
   "map_desc_restaurant": "Hot meals available for pickup",
   "map_your_location": "Your Location",
   "map_quantity_available": "available",
-  "map_contact_details": "Contact for details"
+  "map_contact_details": "Contact for details",
+
+  "cart_empty_title": "Your cart is empty",
+  "cart_empty_description": "Add items from our menu to get started with your order",
+  "cart_browse_food": "Browse Food",
+  "cart_items": "items",
+  "cart_clear_all": "Clear All",
+  "cart_order_summary": "Order Summary",
+  "cart_subtotal": "Subtotal",
+  "cart_delivery_fee": "Delivery Fee",
+  "cart_tax": "Tax (10%)",
+  "cart_total": "Total",
+  "cart_checkout": "Checkout",
+  "cart_confirm_order": "Confirm Order",
+  "cart_confirm_message": "Are you sure you want to place this order?",
+  "cart_cancel": "Cancel",
+  "cart_confirm": "Confirm",
+  "cart_order_success": "Order Placed Successfully!",
+  "cart_order_success_message": "Thank you for your order. We'll contact you soon.",
+  "cart_increase": "Increase quantity",
+  "cart_decrease": "Decrease quantity",
+  "cart_remove": "Remove from cart",
+  "cart_added_to_cart": "added to cart",
+  "cart_login_required": "Login to checkout",
+  "cart_login_message": "Please login to your account to proceed with checkout"
 }

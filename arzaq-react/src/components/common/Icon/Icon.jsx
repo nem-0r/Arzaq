@@ -32,7 +32,9 @@ import {
   IoEarth,
   IoTrophy,
   IoInformationCircle,
-  IoApps
+  IoApps,
+  IoCart,
+  IoCartOutline
 } from 'react-icons/io5';
 import { GiNoodles, GiTacos } from 'react-icons/gi';
 import { TbApple, TbBread, TbMilk } from 'react-icons/tb';
@@ -48,6 +50,8 @@ const Icon = ({ name, className = '', width = 20, height = 20, ...props }) => {
     map: IoLocationSharp,
     community: IoChatbubblesSharp,
     profile: IoPerson,
+    cart: IoCart,
+    cartOutline: IoCartOutline,
     chevronRight: IoChevronForward,
     logout: IoLogOutOutline,
     heartOutline: IoHeartOutline,

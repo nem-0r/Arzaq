@@ -1,5 +1,5 @@
 // src/pages/HomePage/HomePage.jsx
-import React from 'react';
+import React, { useState } from 'react';
 import Header from '../../components/layout/Header/Header';
 import SearchBar from '../../components/layout/SearchBar/SearchBar';
 import BottomNav from '../../components/layout/BottomNav/BottomNav';
@@ -8,6 +8,7 @@ import FoodCard from '../../components/common/FoodCard/FoodCard';
 import RestaurantCard from '../../components/common/RestaurantCard/RestaurantCard';
 import CategoryCard from '../../components/common/CategoryCard/CategoryCard';
 import { useTranslation } from '../../hooks/useTranslation';
+import { useCart } from '../../context/CartContext';
 import {
   recommendedFoods,
   nearbyRestaurants,
@@ -18,10 +19,15 @@ import styles from './HomePage.module.css';
 
 const HomePage = () => {
   const { t } = useTranslation();
+  const { addToCart } = useCart();
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
 
   const handleAddToCart = (food) => {
-    console.log('Added to cart:', food);
-    // TODO: Implement cart functionality
+    addToCart(food);
+    setToastMessage(`${food.title} ${t('cart_added_to_cart')}`);
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 2000);
   };
 
   const handleRestaurantView = (restaurant) => {
@@ -106,6 +112,23 @@ const HomePage = () => {
           ))}
         </HorizontalScrollSection>
       </main>
+
+      {/* Toast Notification */}
+      {showToast && (
+        <div className={styles.toast}>
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <circle cx="10" cy="10" r="10" fill="white" />
+            <path
+              d="M6 10L9 13L14 7"
+              stroke="#22C55E"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          <span>{toastMessage}</span>
+        </div>
+      )}
 
       <BottomNav />
     </div>

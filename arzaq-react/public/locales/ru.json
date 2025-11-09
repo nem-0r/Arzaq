@@ -3,6 +3,7 @@
   "search_placeholder": "Найти еду рядом",
   "nav_home": "Главная",
   "nav_map": "Карта",
+  "nav_cart": "Корзина",
   "nav_community": "Сообщество",
   "nav_profile": "Профиль",
   
@@ -97,5 +98,29 @@
   "map_desc_restaurant": "Горячие блюда для самовывоза",
   "map_your_location": "Ваше местоположение",
   "map_quantity_available": "в наличии",
-  "map_contact_details": "Свяжитесь для уточнения"
+  "map_contact_details": "Свяжитесь для уточнения",
+
+  "cart_empty_title": "Ваша корзина пуста",
+  "cart_empty_description": "Добавьте блюда из нашего меню, чтобы начать заказ",
+  "cart_browse_food": "Посмотреть блюда",
+  "cart_items": "товаров",
+  "cart_clear_all": "Очистить всё",
+  "cart_order_summary": "Итого по заказу",
+  "cart_subtotal": "Сумма",
+  "cart_delivery_fee": "Доставка",
+  "cart_tax": "Налог (10%)",
+  "cart_total": "Итого",
+  "cart_checkout": "Оформить заказ",
+  "cart_confirm_order": "Подтвердить заказ",
+  "cart_confirm_message": "Вы уверены, что хотите оформить этот заказ?",
+  "cart_cancel": "Отмена",
+  "cart_confirm": "Подтвердить",
+  "cart_order_success": "Заказ успешно оформлен!",
+  "cart_order_success_message": "Спасибо за ваш заказ. Мы скоро с вами свяжемся.",
+  "cart_increase": "Увеличить количество",
+  "cart_decrease": "Уменьшить количество",
+  "cart_remove": "Удалить из корзины",
+  "cart_added_to_cart": "добавлено в корзину",
+  "cart_login_required": "Войдите, чтобы оформить заказ",
+  "cart_login_message": "Пожалуйста, войдите в свой аккаунт, чтобы продолжить оформление заказа"
 }
