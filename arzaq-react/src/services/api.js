@@ -2,7 +2,7 @@
 // API Service Layer - Ready for Backend Integration
 
 // eslint-disable-next-line no-unused-vars
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 // Helper function to get auth token
 // eslint-disable-next-line no-unused-vars
