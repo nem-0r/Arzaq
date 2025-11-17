@@ -69,10 +69,15 @@ const RegisterForm = () => {
       alert(t('alert_register_success'));
       navigate('/login');
     } catch (error) {
+      // Обрабатываем ошибки от бэкенда
       if (error.message === 'error_email_exists') {
-        setFieldError('email', t('error_email_exists'));
+        setFieldError('email', t('error_email_exists') || 'User with this email already exists');
+      } else if (error.status === 0) {
+        // Сетевая ошибка
+        alert(t('error_network') || 'Network error. Please check your connection.');
       } else {
-        alert(t('error_network') || 'An error occurred');
+        // Другие ошибки
+        alert(error.message || t('error_network') || 'An error occurred');
       }
     }
   };

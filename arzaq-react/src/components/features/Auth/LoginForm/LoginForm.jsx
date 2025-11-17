@@ -55,12 +55,16 @@ const LoginForm = () => {
       alert(t('alert_login_success'));
       navigate('/');
     } catch (error) {
-      if (error.message === 'error_email_notfound') {
-        setFieldError('email', t('error_email_notfound'));
-      } else if (error.message === 'error_password_incorrect') {
-        setFieldError('password', t('error_password_incorrect'));
+      // Обрабатываем ошибки от бэкенда
+      if (error.message === 'error_login_failed') {
+        // Бэкенд возвращает общую ошибку для безопасности
+        setFieldError('password', t('error_password_incorrect') || 'Incorrect email or password');
+      } else if (error.status === 0) {
+        // Сетевая ошибка
+        alert(t('error_network') || 'Network error. Please check your connection.');
       } else {
-        alert(t('error_network') || 'An error occurred');
+        // Другие ошибки
+        alert(error.message || t('error_network') || 'An error occurred');
       }
     }
   };
