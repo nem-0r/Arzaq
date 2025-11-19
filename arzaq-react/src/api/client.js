@@ -14,7 +14,7 @@ const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 10000, // 10 секунд
+  timeout: 30000, // 30 секунд
 });
 
 // Request Interceptor - добавляем JWT токен к каждому запросу
