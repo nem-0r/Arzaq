@@ -13,7 +13,7 @@ const LoginPage = () => {
     <div className={styles.authContainer}>
       <Header />
 
-      <main className={styles.authContent}>
+      <main id="main-content" className={styles.authContent}>
         <div className={styles.authBox}>
           <h2>{t('login_title')}</h2>
           <p className={styles.authSubtitle}>{t('login_subtitle')}</p>

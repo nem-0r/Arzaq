@@ -32,6 +32,9 @@ const RegisterForm = () => {
         value: '', // Will be set dynamically
         message: 'Passwords do not match'
       }
+    },
+    role: {
+      required: true
     }
   };
 
@@ -50,7 +53,8 @@ const RegisterForm = () => {
       fullName: '',
       email: '',
       password: '',
-      confirmPassword: ''
+      confirmPassword: '',
+      role: 'client' // Default role
     },
     validationRules
   );
@@ -64,7 +68,8 @@ const RegisterForm = () => {
       await register({
         fullName: formValues.fullName,
         email: formValues.email,
-        password: formValues.password
+        password: formValues.password,
+        role: formValues.role
       });
       alert(t('alert_register_success'));
       navigate('/login');
@@ -84,6 +89,25 @@ const RegisterForm = () => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className={styles.authForm}>
+      <div className={styles.formGroup}>
+        <label htmlFor="role">{'I am a'}</label>
+        <select
+          id="role"
+          name="role"
+          value={values.role}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          disabled={isSubmitting}
+          className={touched.role && errors.role ? styles.inputError : ''}
+        >
+          <option value="client">{t('Client') || 'Client - I want to rescue food'}</option>
+          <option value="restaurant">{t('Restaurant') || 'Restaurant - I want to reduce food waste'}</option>
+        </select>
+        {touched.role && errors.role && (
+          <span className={styles.errorMessage}>{errors.role}</span>
+        )}
+      </div>
+
       <div className={styles.formGroup}>
         <label htmlFor="fullName">{t('register_fullname_label')}</label>
         <input

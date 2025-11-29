@@ -55,7 +55,7 @@ const CartPage = () => {
     return (
       <div className="page-container">
         <Header title={t('nav_cart')} showBackButton={false} />
-        <main className="main-content">
+        <main id="main-content" className="main-content">
           <EmptyCart />
         </main>
         <BottomNav />
@@ -68,7 +68,7 @@ const CartPage = () => {
     return (
       <div className="page-container">
         <Header title={t('nav_cart')} showBackButton={false} />
-        <main className="main-content">
+        <main id="main-content" className="main-content">
           <div className={styles.container}>
             <div className={styles.itemsList}>
               {cartItems.map((item) => (
@@ -96,7 +96,7 @@ const CartPage = () => {
     <div className="page-container">
       <Header title={t('nav_cart')} showBackButton={false} />
 
-      <main className="main-content">
+      <main id="main-content" className="main-content">
         <div className={styles.container}>
           {/* Cart Header */}
           <div className={styles.cartHeader}>

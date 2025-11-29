@@ -1,6 +1,6 @@
 // src/pages/CommunityPage/CommunityPage.jsx
 import React, { useState, useEffect } from 'react';
-import { IoDocumentTextOutline } from 'react-icons/io5';
+import { IoDocumentTextOutline, IoFilterOutline } from 'react-icons/io5';
 import Header from '../../components/layout/Header/Header';
 import BottomNav from '../../components/layout/BottomNav/BottomNav';
 import PostCard from '../../components/features/Community/PostCard/PostCard';
@@ -12,9 +12,20 @@ import api from '../../services/api';
 import { COMMUNITY_POSTS } from '../../utils/constants';
 import styles from './CommunityPage.module.css';
 
+// Food rescue categories
+const FOOD_CATEGORIES = [
+  { id: 'all', label: 'All Food', icon: '🍽️' },
+  { id: 'surplus', label: 'Surplus Food', icon: '🏪' },
+  { id: 'leftovers', label: 'Leftovers', icon: '🍱' },
+  { id: 'homegrown', label: 'Home Grown', icon: '🌱' },
+  { id: 'homecooked', label: 'Home Cooked', icon: '🍳' }
+];
+
 const CommunityPage = () => {
   const { isAuthenticated } = useAuth();
   const [posts, setPosts] = useState([]);
+  const [filteredPosts, setFilteredPosts] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState('all');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -23,6 +34,11 @@ const CommunityPage = () => {
   useEffect(() => {
     loadPosts();
   }, []);
+
+  // Filter posts when category changes
+  useEffect(() => {
+    filterPosts();
+  }, [posts, selectedCategory]);
 
   const loadPosts = async () => {
     setIsLoading(true);
@@ -44,6 +60,28 @@ const CommunityPage = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const filterPosts = () => {
+    if (selectedCategory === 'all') {
+      setFilteredPosts(posts);
+    } else {
+      const categoryMap = {
+        'surplus': 'Surplus Food',
+        'leftovers': 'Leftovers',
+        'homegrown': 'Home Grown',
+        'homecooked': 'Home Cooked'
+      };
+
+      const filtered = posts.filter(post =>
+        post.category === categoryMap[selectedCategory]
+      );
+      setFilteredPosts(filtered);
+    }
+  };
+
+  const handleCategoryChange = (categoryId) => {
+    setSelectedCategory(categoryId);
   };
 
   const handleCreatePostClick = () => {
@@ -71,11 +109,36 @@ const CommunityPage = () => {
     <div className="page-container">
       <Header />
 
-      <main className="main-content">
-        <h2 className={styles.title}>Community Feed</h2>
+      <main id="main-content" className="main-content">
+        <div className={styles.header}>
+          <h2 className={styles.title}>Community Food Sharing</h2>
+          <p className={styles.subtitle}>Find and share surplus food in your area</p>
+        </div>
 
         {/* Create Post Button */}
         <CreatePostButton onClick={handleCreatePostClick} />
+
+        {/* Category Filters */}
+        <div className={styles.filterSection}>
+          <div className={styles.filterHeader}>
+            <IoFilterOutline size={20} />
+            <span>Filter by category</span>
+          </div>
+          <div className={styles.categoryFilters}>
+            {FOOD_CATEGORIES.map((category) => (
+              <button
+                key={category.id}
+                className={`${styles.categoryBtn} ${
+                  selectedCategory === category.id ? styles.active : ''
+                }`}
+                onClick={() => handleCategoryChange(category.id)}
+              >
+                <span className={styles.categoryIcon}>{category.icon}</span>
+                <span>{category.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
 
         {/* Posts Feed */}
         {isLoading ? (
@@ -83,17 +146,21 @@ const CommunityPage = () => {
             <div className={styles.loader}></div>
             <p>Loading posts...</p>
           </div>
-        ) : posts.length > 0 ? (
+        ) : filteredPosts.length > 0 ? (
           <div className={styles.postsContainer}>
-            {posts.map((post) => (
+            {filteredPosts.map((post) => (
               <PostCard key={post.id} post={post} />
             ))}
           </div>
         ) : (
           <div className={styles.emptyState}>
             <IoDocumentTextOutline className={styles.emptyIcon} size={64} />
-            <h3>No posts yet</h3>
-            <p>Be the first to share something with the community!</p>
+            <h3>No posts found</h3>
+            <p>
+              {selectedCategory === 'all'
+                ? 'Be the first to share something with the community!'
+                : 'No posts in this category yet. Try another filter!'}
+            </p>
           </div>
         )}
       </main>

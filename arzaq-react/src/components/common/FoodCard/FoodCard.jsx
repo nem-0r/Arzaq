@@ -1,5 +1,13 @@
 // src/components/common/FoodCard/FoodCard.jsx
 import React from 'react';
+import {
+  IoTimeOutline,
+  IoLeafOutline,
+  IoLocationOutline,
+  IoStar,
+  IoRestaurantOutline,
+  IoFlame
+} from 'react-icons/io5';
 import styles from './FoodCard.module.css';
 
 const FoodCard = ({
@@ -9,49 +17,154 @@ const FoodCard = ({
   price,
   oldPrice,
   discount,
+  rating = null,              // NEW: Restaurant rating (0-5)
+  distance = null,            // NEW: Distance to location (e.g., "0.5 km")
+  portions = null,            // NEW: Number of portions left
+  expiresInMinutes = null,    // NEW: Minutes until expiration
+  status = 'pickup_today',
+  pickupTime,
   onAddClick
 }) => {
+  // Status badge configuration
+  const statusConfig = {
+    pickup_today: {
+      label: 'Pickup Today',
+      className: styles.statusPickupToday
+    },
+    leftovers: {
+      label: 'Leftovers',
+      className: styles.statusLeftovers
+    }
+  };
+
+  const currentStatus = statusConfig[status] || statusConfig.pickup_today;
+  const isLowStock = portions && portions <= 3;
+  const isExpiringSoon = expiresInMinutes && expiresInMinutes <= 60;
+
   return (
-    <div className={styles.card}>
+    <article
+      className={styles.card}
+      role="article"
+      aria-label={`${title} from ${restaurant}`}
+    >
       <div className={styles.imageContainer}>
-        <img src={image} alt={title} className={styles.image} />
+        <img
+          src={image}
+          alt={`${title} from ${restaurant}`}
+          loading="lazy"
+          className={styles.image}
+        />
+
+        {/* Status Badge */}
+        <span
+          className={`${styles.statusBadge} ${currentStatus.className}`}
+          role="status"
+          aria-label={`Status: ${currentStatus.label}`}
+        >
+          <IoLeafOutline size={14} aria-hidden="true" />
+          <span>{currentStatus.label}</span>
+        </span>
+
+        {/* Discount Badge */}
         {discount && (
-          <span className={styles.discountBadge}>{discount}% OFF</span>
+          <span
+            className={styles.discountBadge}
+            role="status"
+            aria-label={`${discount} percent discount`}
+          >
+            {discount}% OFF
+          </span>
+        )}
+
+        {/* Low Stock Warning */}
+        {isLowStock && (
+          <span className={styles.lowStockBadge} role="status">
+            <IoFlame size={14} aria-hidden="true" />
+            <span>Only {portions} left!</span>
+          </span>
         )}
       </div>
+
       <div className={styles.content}>
+        {/* Metadata Header */}
+        {(rating || distance || portions) && (
+          <div className={styles.metadata}>
+            {rating && (
+              <div className={styles.rating}>
+                <IoStar size={14} aria-hidden="true" />
+                <span>{rating}</span>
+              </div>
+            )}
+            {rating && (distance || portions) && (
+              <span className={styles.dot} aria-hidden="true">•</span>
+            )}
+            {distance && (
+              <div className={styles.distance}>
+                <IoLocationOutline size={14} aria-hidden="true" />
+                <span>{distance}</span>
+              </div>
+            )}
+            {distance && portions && (
+              <span className={styles.dot} aria-hidden="true">•</span>
+            )}
+            {portions && !isLowStock && (
+              <div className={styles.portions}>
+                <IoRestaurantOutline size={14} aria-hidden="true" />
+                <span>{portions} left</span>
+              </div>
+            )}
+          </div>
+        )}
+
         <h3 className={styles.title}>{title}</h3>
         <p className={styles.restaurant}>{restaurant}</p>
+
+        {/* Expiring Soon or Pickup Time */}
+        {isExpiringSoon ? (
+          <div className={styles.expiringSoon} role="alert">
+            <IoTimeOutline size={16} aria-hidden="true" />
+            <span>Ends in {expiresInMinutes} min!</span>
+          </div>
+        ) : pickupTime ? (
+          <div className={styles.pickupTime}>
+            <IoTimeOutline size={16} aria-hidden="true" />
+            <span>{pickupTime}</span>
+          </div>
+        ) : null}
+
         <div className={styles.footer}>
           <div className={styles.priceContainer}>
-            <span className={styles.price}>${price}</span>
+            <span
+              className={styles.price}
+              aria-label={`Current price: ${price} dollars`}
+            >
+              ${price}
+            </span>
             {oldPrice && (
-              <span className={styles.oldPrice}>${oldPrice}</span>
+              <>
+                <span
+                  className={styles.oldPrice}
+                  aria-label={`Original price: ${oldPrice} dollars`}
+                >
+                  ${oldPrice}
+                </span>
+                <span className={styles.savings}>
+                  Save ${(oldPrice - price).toFixed(2)}
+                </span>
+              </>
             )}
           </div>
           <button
-            className={styles.addBtn}
+            className={styles.rescueBtn}
             onClick={() => onAddClick && onAddClick()}
-            aria-label={`Add ${title} to cart`}
+            aria-label={`Rescue ${title} from ${restaurant} for ${price} dollars`}
           >
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 20 20"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M10 5V15M5 10H15"
-                stroke="white"
-                strokeWidth="2"
-                strokeLinecap="round"
-              />
-            </svg>
+            <IoLeafOutline size={18} aria-hidden="true" />
+            <span>Rescue</span>
           </button>
         </div>
       </div>
-    </div>
+    </article>
   );
 };
 

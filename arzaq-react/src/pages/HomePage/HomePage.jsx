@@ -1,71 +1,90 @@
 // src/pages/HomePage/HomePage.jsx
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { IoLocationSharp, IoLeafOutline, IoHeartOutline, IoPeopleOutline } from 'react-icons/io5';
 import Header from '../../components/layout/Header/Header';
-import SearchBar from '../../components/layout/SearchBar/SearchBar';
 import BottomNav from '../../components/layout/BottomNav/BottomNav';
 import HorizontalScrollSection from '../../components/common/HorizontalScrollSection/HorizontalScrollSection';
 import FoodCard from '../../components/common/FoodCard/FoodCard';
-import RestaurantCard from '../../components/common/RestaurantCard/RestaurantCard';
-import CategoryCard from '../../components/common/CategoryCard/CategoryCard';
+import UserImpact from '../../components/features/Profile/UserImpact/UserImpact';
 import { useTranslation } from '../../hooks/useTranslation';
 import { useCart } from '../../context/CartContext';
+import { useAuth } from '../../hooks/useAuth';
 import {
   recommendedFoods,
-  nearbyRestaurants,
-  popularCategories,
-  featuredDeals
+  nearbyRestaurants
 } from '../../utils/mockData';
 import styles from './HomePage.module.css';
 
 const HomePage = () => {
   const { t } = useTranslation();
   const { addToCart } = useCart();
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
 
   const handleAddToCart = (food) => {
     addToCart(food);
-    setToastMessage(`${food.title} ${t('cart_added_to_cart')}`);
+    setToastMessage(`${food.title} rescued!`);
     setShowToast(true);
     setTimeout(() => setShowToast(false), 2000);
   };
 
-  const handleRestaurantView = (restaurant) => {
-    console.log('View restaurant:', restaurant);
-    // TODO: Navigate to restaurant page
-  };
-
-  const handleCategoryClick = (category) => {
-    console.log('Category selected:', category);
-    // TODO: Navigate to category page
+  const handleFindFood = () => {
+    navigate('/map');
   };
 
   return (
     <div className="page-container">
       <Header showLanguageSwitcher={true} />
-      <SearchBar />
 
-      <main className="main-content">
-        <section className={styles.welcomeSection}>
-          <h2>{t('home_welcome_title')}</h2>
-          <p>{t('home_welcome_subtitle')}</p>
+      <main id="main-content" className="main-content">
+        {/* Hero Section - Mission Statement */}
+        <section className={styles.heroSection}>
+          <div className={styles.heroContent}>
+            <IoLeafOutline className={styles.heroIcon} />
+            <h1 className={styles.heroTitle}>Save Food, Save Planet</h1>
+            <p className={styles.heroSubtitle}>
+              Join the fight against food waste. Every meal rescued makes a difference.
+            </p>
+            <button className={styles.ctaButton} onClick={handleFindFood}>
+              <IoLocationSharp size={24} />
+              <span>Find Food Near You</span>
+            </button>
+          </div>
+
+          {/* Mission Stats */}
+          <div className={styles.missionStats}>
+            <div className={styles.statItem}>
+              <IoHeartOutline className={styles.statIcon} />
+              <div className={styles.statContent}>
+                <div className={styles.statValue}>1000+</div>
+                <div className={styles.statLabel}>Meals Saved</div>
+              </div>
+            </div>
+            <div className={styles.statItem}>
+              <IoPeopleOutline className={styles.statIcon} />
+              <div className={styles.statContent}>
+                <div className={styles.statValue}>500+</div>
+                <div className={styles.statLabel}>Active Heroes</div>
+              </div>
+            </div>
+          </div>
         </section>
 
-        {/* Popular Categories */}
-        <HorizontalScrollSection title="Popular Categories">
-          {popularCategories.map((category) => (
-            <CategoryCard
-              key={category.id}
-              icon={category.icon}
-              name={category.name}
-              color={category.color}
-              onClick={() => handleCategoryClick(category)}
-            />
-          ))}
-        </HorizontalScrollSection>
+        {/* User Impact - Only show if authenticated */}
+        {isAuthenticated && (
+          <section className={styles.impactSection}>
+            <UserImpact />
+          </section>
+        )}
 
-        {/* Recommended For You */}
-        <HorizontalScrollSection title="Recommended For You" showViewAll>
+        {/* Available Food Near You */}
+        <HorizontalScrollSection
+          title="Available Food Near You"
+          subtitle="Rescue surplus food before it goes to waste"
+        >
           {recommendedFoods.map((food) => (
             <FoodCard
               key={food.id}
@@ -73,44 +92,34 @@ const HomePage = () => {
               title={food.title}
               restaurant={food.restaurant}
               price={food.price}
+              status="pickup_today"
+              pickupTime="Today 6-8 PM"
               onAddClick={() => handleAddToCart(food)}
             />
           ))}
         </HorizontalScrollSection>
 
-        {/* Nearby Restaurants */}
-        <HorizontalScrollSection title="Nearby Restaurants" showViewAll>
-          {nearbyRestaurants.map((restaurant) => (
-            <RestaurantCard
-              key={restaurant.id}
-              image={restaurant.image}
-              name={restaurant.name}
-              rating={restaurant.rating}
-              distance={restaurant.distance}
-              cuisine={restaurant.cuisine}
-              specialty={restaurant.specialty}
-              mealsAvailable={restaurant.mealsAvailable}
-              discount={restaurant.discount}
-              onViewClick={() => handleRestaurantView(restaurant)}
-            />
-          ))}
-        </HorizontalScrollSection>
-
-        {/* Featured Deals */}
-        <HorizontalScrollSection title="Featured Deals" showViewAll>
-          {featuredDeals.map((deal) => (
-            <FoodCard
-              key={deal.id}
-              image={deal.image}
-              title={deal.title}
-              restaurant={deal.restaurant}
-              price={deal.price}
-              oldPrice={deal.oldPrice}
-              discount={deal.discount}
-              onAddClick={() => handleAddToCart(deal)}
-            />
-          ))}
-        </HorizontalScrollSection>
+        {/* How It Works */}
+        <section className={styles.howItWorks}>
+          <h2 className={styles.sectionTitle}>How ARZAQ Works</h2>
+          <div className={styles.stepsGrid}>
+            <div className={styles.stepCard}>
+              <div className={styles.stepNumber}>1</div>
+              <h3>Find Food</h3>
+              <p>Browse surplus meals from local restaurants and stores</p>
+            </div>
+            <div className={styles.stepCard}>
+              <div className={styles.stepNumber}>2</div>
+              <h3>Reserve</h3>
+              <p>Pick your meal and reserve it instantly</p>
+            </div>
+            <div className={styles.stepCard}>
+              <div className={styles.stepNumber}>3</div>
+              <h3>Pickup</h3>
+              <p>Collect during pickup time and save the planet</p>
+            </div>
+          </div>
+        </section>
       </main>
 
       {/* Toast Notification */}

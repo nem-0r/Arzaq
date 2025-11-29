@@ -45,22 +45,45 @@ export const COMMUNITY_POSTS = [
     id: 1,
     author: 'John Doe',
     time: '2 hours ago',
-    text: 'Fresh apples available at Green Market! 5 kg available',
-    location: 'Green Market, Almaty'
+    title: 'Fresh Organic Apples',
+    text: 'Fresh apples available at Green Market! 5 kg available. Perfect for baking or eating fresh. Slightly bruised but still delicious!',
+    location: 'Green Market, Almaty',
+    image: 'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=600&h=400&fit=crop',
+    category: 'Surplus Food',
+    pickupTime: 'Today 4-6 PM'
   },
   {
     id: 2,
     author: 'Sarah Smith',
     time: '5 hours ago',
-    text: 'Giving away fresh bread from today\'s baking',
-    location: 'Central Bakery'
+    title: 'Fresh Baked Bread',
+    text: 'Giving away fresh bread from today\'s baking. We have baguettes and whole wheat loaves. All baked this morning!',
+    location: 'Central Bakery, Almaty',
+    image: 'https://images.unsplash.com/photo-1549931319-a545dcf3bc73?w=600&h=400&fit=crop',
+    category: 'Leftovers',
+    pickupTime: 'Today 7-8 PM'
   },
   {
     id: 3,
     author: 'Mike Johnson',
     time: '1 day ago',
-    text: 'Fresh broccoli harvest today! Come pick up',
-    location: 'Community Garden'
+    title: 'Garden Fresh Broccoli',
+    text: 'Fresh broccoli harvest today! Come pick up from our community garden. Organic and pesticide-free.',
+    location: 'Community Garden, Almaty',
+    image: 'https://images.unsplash.com/photo-1459411552884-841db9b3cc2a?w=600&h=400&fit=crop',
+    category: 'Home Grown',
+    pickupTime: 'Today 5-7 PM'
+  },
+  {
+    id: 4,
+    author: 'Emma Wilson',
+    time: '3 hours ago',
+    title: 'Surplus Pasta & Sauce',
+    text: 'Made too much pasta and tomato sauce for dinner. Fresh homemade sauce with basil from my garden!',
+    location: 'Downtown, Almaty',
+    image: 'https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=600&h=400&fit=crop',
+    category: 'Home Cooked',
+    pickupTime: 'Today 8-9 PM'
   }
 ];
 

@@ -3,39 +3,45 @@
   bottom: 0;
   left: 0;
   width: 100%;
-  background: var(--background-white);
+  background: var(--color-bg-primary);
   display: flex;
   justify-content: space-around;
-  padding: 10px 0;
-  box-shadow: 0 -2px 10px var(--shadow);
-  z-index: 1000;
+  padding: var(--space-2) 0;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  z-index: var(--z-fixed);
+  border-top: 1px solid var(--color-border-primary);
 }
 
 .navItem {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  padding: 8px clamp(10px, 3vw, 20px);
+  justify-content: center;
+  gap: var(--space-1);
+  padding: var(--space-2) clamp(10px, 3vw, 20px);
   text-decoration: none;
-  color: var(--text-gray);
-  transition: all var(--transition-normal);
+  color: var(--color-text-secondary);
+  transition: all var(--transition-fast);
   flex: 1;
   max-width: 120px;
+  min-height: var(--size-touch-comfortable); /* 48px for comfortable touch */
+  border-radius: var(--radius-md);
 }
 
 .navItem span {
-  font-size: clamp(11px, 2.5vw, 12px);
-  font-weight: 500;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  line-height: 1;
 }
 
 .navItem svg {
   transition: fill var(--transition-normal), stroke var(--transition-normal);
 }
 
-/* Active state - filled icon */
+/* Active state - filled icon with background */
 .navItem.active {
-  color: var(--accent-orange);
+  color: var(--color-primary-700);
+  background: var(--color-primary-50);
 }
 
 .navItem.active svg {
@@ -45,14 +51,15 @@
 
 /* Hover state */
 .navItem:hover {
-  color: var(--accent-orange);
+  color: var(--color-primary-600);
+  background: var(--color-gray-50);
 }
 
-/* Focus visible */
+/* Focus visible - IMPROVED for accessibility */
 .navItem:focus-visible {
-  outline: 2px solid var(--accent-orange);
-  outline-offset: -2px;
-  border-radius: var(--radius-sm);
+  outline: 3px solid var(--color-border-focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-md);
 }
 
 /* Icon wrapper for badge positioning */
@@ -61,26 +68,29 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  width: var(--size-icon-lg); /* 32px */
+  height: var(--size-icon-lg);
 }
 
-/* Badge styles */
+/* Badge styles - IMPROVED with design tokens */
 .badge {
   position: absolute;
-  top: -6px;
-  right: -8px;
+  top: -4px;
+  right: -6px;
   min-width: 18px;
   height: 18px;
-  background: var(--accent-orange, #ff6b35);
-  color: white;
-  font-size: 10px;
-  font-weight: 700;
+  background: var(--color-error-500);
+  color: var(--color-white);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 9px;
-  padding: 0 4px;
-  box-shadow: 0 2px 6px rgba(255, 107, 53, 0.4);
-  animation: badgePulse 2s ease-in-out infinite;
+  border-radius: var(--radius-full);
+  padding: 0 var(--space-1);
+  box-shadow: var(--shadow-sm);
+  animation: badgePulse var(--duration-slow) ease-in-out infinite;
+  border: 2px solid var(--color-bg-primary);
 }
 
 @keyframes badgePulse {
@@ -94,5 +104,6 @@
 
 /* Ensure badge is visible on active state */
 .navItem.active .badge {
-  background: var(--accent-orange, #ff6b35);
+  background: var(--color-error-500);
+  border-color: var(--color-primary-50);
 }

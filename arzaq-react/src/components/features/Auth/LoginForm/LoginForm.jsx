@@ -7,7 +7,7 @@ import { useFormValidation } from '../../../../hooks/useFormValidation';
 import styles from './LoginForm.module.css';
 
 const LoginForm = () => {
-  const { login } = useAuth();
+  const { login, currentUser } = useAuth();
   const { t } = useTranslation();
   const navigate = useNavigate();
 
@@ -48,12 +48,35 @@ const LoginForm = () => {
     handleChange({ target: { name, value: checked } });
   };
 
-  // Submit handler
+  // Submit handler with role-based redirection
   const onSubmit = async (formValues) => {
     try {
       await login(formValues.email, formValues.password);
-      alert(t('alert_login_success'));
-      navigate('/');
+
+      // Wait a moment for currentUser to be updated in context
+      setTimeout(() => {
+        // Get user data from localStorage (it's set in AuthContext after login)
+        const userData = JSON.parse(localStorage.getItem('currentUser'));
+        const userRole = userData?.role || 'client';
+
+        alert(t('alert_login_success'));
+
+        // Role-based redirection
+        switch (userRole) {
+          case 'restaurant':
+            navigate('/restaurant-dashboard');
+            break;
+          case 'admin':
+            navigate('/admin');
+            break;
+          case 'client':
+          default:
+            // Clients stay on home page or go where they intended
+            navigate('/');
+            break;
+        }
+      }, 100);
+
     } catch (error) {
       // Обрабатываем ошибки от бэкенда
       if (error.message === 'error_login_failed') {

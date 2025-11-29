@@ -1,13 +1,30 @@
 // src/components/features/Map/YandexMap/YandexMap.jsx
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '../../../../hooks/useTranslation';
-import { ALMATY_COORDINATES, FOOD_LOCATIONS, YANDEX_MAPS_API_KEY } from '../../../../utils/constants';
+import { ALMATY_COORDINATES, YANDEX_MAPS_API_KEY } from '../../../../utils/constants';
+import { restaurantService } from '../../../../api/services';
 import styles from './YandexMap.module.css';
 
 const YandexMap = () => {
   const mapRef = useRef(null);
   const ymapsRef = useRef(null);
+  const navigate = useNavigate();
   const { t, currentLanguage } = useTranslation();
+  const [restaurants, setRestaurants] = useState([]);
+
+  // Load restaurants
+  useEffect(() => {
+    const loadRestaurants = async () => {
+      try {
+        const data = await restaurantService.getAllRestaurants({ status: 'approved' });
+        setRestaurants(data);
+      } catch (err) {
+        console.error('Error loading restaurants:', err);
+      }
+    };
+    loadRestaurants();
+  }, []);
 
   useEffect(() => {
     // Check if API key exists
@@ -49,27 +66,43 @@ const YandexMap = () => {
         ymapsRef.current = map;
         console.log('✅ Yandex Map initialized successfully');
 
-        // Add food location markers
-        FOOD_LOCATIONS.forEach((location) => {
-          const name = t(location.nameKey);
-          const desc = t(location.descKey);
-          const footer = location.quantity
-            ? `${location.quantity} ${t('map_quantity_available')}`
-            : t('map_contact_details');
+        // Add restaurant markers
+        restaurants.forEach((restaurant) => {
+          // Check if restaurant has valid coordinates
+          if (!restaurant.latitude || !restaurant.longitude) {
+            console.warn(`Restaurant ${restaurant.name} has no coordinates`);
+            return;
+          }
+
+          const coords = [parseFloat(restaurant.latitude), parseFloat(restaurant.longitude)];
 
           const placemark = new window.ymaps.Placemark(
-            location.coords,
+            coords,
             {
-              balloonContentHeader: `${location.icon} ${name}`,
-              balloonContentBody: desc,
-              balloonContentFooter: footer,
-              hintContent: name
+              balloonContentHeader: `<strong>${restaurant.name}</strong>`,
+              balloonContentBody: `
+                <p>${restaurant.address}</p>
+                ${restaurant.description ? `<p style="margin-top: 8px; color: #6b7280;">${restaurant.description}</p>` : ''}
+              `,
+              balloonContentFooter: `
+                <a href="/restaurant/${restaurant.id}"
+                   style="display: inline-block; margin-top: 8px; padding: 8px 16px; background-color: #22c55e; color: white; text-decoration: none; border-radius: 6px; font-weight: 600;"
+                   onclick="event.preventDefault(); window.location.href='/restaurant/${restaurant.id}'">
+                  View Details
+                </a>
+              `,
+              hintContent: restaurant.name
             },
             {
-              preset: 'islands#icon',
-              iconColor: location.quantity ? '#9DB896' : '#E89A6F'
+              preset: 'islands#restaurantIcon',
+              iconColor: '#22c55e'
             }
           );
+
+          // Add click event to navigate to restaurant details
+          placemark.events.add('click', () => {
+            navigate(`/restaurant/${restaurant.id}`);
+          });
 
           map.geoObjects.add(placemark);
         });
@@ -100,7 +133,7 @@ const YandexMap = () => {
         ymapsRef.current = null;
       }
     };
-  }, [t, currentLanguage]);
+  }, [t, currentLanguage, restaurants, navigate]);
 
   return <div ref={mapRef} className={styles.mapContainer}></div>;
 };

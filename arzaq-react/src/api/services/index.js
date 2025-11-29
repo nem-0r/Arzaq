@@ -6,3 +6,5 @@ export { default as userService } from './user.service';
 export { default as placeService } from './place.service';
 export { default as postService } from './post.service';
 export { default as commentService } from './comment.service';
+export { default as restaurantService } from './restaurant.service';
+export { default as foodService } from './food.service';

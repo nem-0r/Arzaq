@@ -22,8 +22,34 @@ const ProfilePage = () => {
     }
   };
 
+  // Role-specific dashboard items
+  const getDashboardItems = () => {
+    if (!isAuthenticated) return [];
+
+    const items = [];
+
+    if (currentUser?.role === 'admin') {
+      items.push({
+        label: 'Admin Dashboard',
+        icon: 'chevronRight',
+        onClick: () => navigate('/admin')
+      });
+    }
+
+    if (currentUser?.role === 'restaurant') {
+      items.push({
+        label: 'Restaurant Dashboard',
+        icon: 'chevronRight',
+        onClick: () => navigate('/restaurant-dashboard')
+      });
+    }
+
+    return items;
+  };
+
   const accountItems = isAuthenticated
     ? [
+        ...getDashboardItems(),
         {
           label: t('profile_logout'),
           icon: 'logout',
@@ -53,7 +79,7 @@ const ProfilePage = () => {
     <div className="page-container">
       <Header />
 
-      <main className={`main-content ${styles.profileContent}`}>
+      <main id="main-content" className={`main-content ${styles.profileContent}`}>
         <ProfileHeader user={currentUser} />
 
         {/* User Impact Stats - Demo Version */}

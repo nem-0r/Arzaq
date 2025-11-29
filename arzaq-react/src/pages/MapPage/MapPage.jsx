@@ -11,7 +11,9 @@ const MapPage = () => {
     <div className={styles.pageContainer}>
       <Header showLanguageSwitcher={true} />
       <SearchBar showFilter={true} />
-      <YandexMap />
+      <main id="main-content" className={styles.mapContent}>
+        <YandexMap />
+      </main>
       <BottomNav />
     </div>
   );
