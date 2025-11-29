@@ -1,5 +1,6 @@
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import { LanguageProvider } from './context/LanguageContext';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
@@ -21,50 +22,54 @@ const RestaurantDashboard = lazy(() => import('./pages/RestaurantDashboard/Resta
 const RestaurantDetailsPage = lazy(() => import('./pages/RestaurantDetailsPage/RestaurantDetailsPage'));
 
 function App() {
+  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+
   return (
-    <Router>
-      <LanguageProvider>
-        <AuthProvider>
-          <CartProvider>
-            <SkipLink />
-            <Suspense fallback={<Loading fullscreen />}>
-              <Routes>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/map" element={<MapPage />} />
-                <Route path="/cart" element={<CartPage />} />
-                <Route path="/community" element={<CommunityPage />} />
-                <Route path="/profile" element={<ProfilePage />} />
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/register" element={<RegisterPage />} />
-                <Route path="/restaurant/:id" element={<RestaurantDetailsPage />} />
+    <GoogleOAuthProvider clientId={googleClientId}>
+      <Router>
+        <LanguageProvider>
+          <AuthProvider>
+            <CartProvider>
+              <SkipLink />
+              <Suspense fallback={<Loading fullscreen />}>
+                <Routes>
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/map" element={<MapPage />} />
+                  <Route path="/cart" element={<CartPage />} />
+                  <Route path="/community" element={<CommunityPage />} />
+                  <Route path="/profile" element={<ProfilePage />} />
+                  <Route path="/login" element={<LoginPage />} />
+                  <Route path="/register" element={<RegisterPage />} />
+                  <Route path="/restaurant/:id" element={<RestaurantDetailsPage />} />
 
-                {/* Admin-only routes */}
-                <Route
-                  path="/admin"
-                  element={
-                    <RoleGuard allowedRoles={['admin']}>
-                      <AdminDashboard />
-                    </RoleGuard>
-                  }
-                />
+                  {/* Admin-only routes */}
+                  <Route
+                    path="/admin"
+                    element={
+                      <RoleGuard allowedRoles={['admin']}>
+                        <AdminDashboard />
+                      </RoleGuard>
+                    }
+                  />
 
-                {/* Restaurant-only routes */}
-                <Route
-                  path="/restaurant-dashboard"
-                  element={
-                    <RoleGuard allowedRoles={['restaurant']}>
-                      <RestaurantDashboard />
-                    </RoleGuard>
-                  }
-                />
+                  {/* Restaurant-only routes */}
+                  <Route
+                    path="/restaurant-dashboard"
+                    element={
+                      <RoleGuard allowedRoles={['restaurant']}>
+                        <RestaurantDashboard />
+                      </RoleGuard>
+                    }
+                  />
 
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
-            </Suspense>
-          </CartProvider>
-        </AuthProvider>
-      </LanguageProvider>
-    </Router>
+                  <Route path="*" element={<Navigate to="/" replace />} />
+                </Routes>
+              </Suspense>
+            </CartProvider>
+          </AuthProvider>
+        </LanguageProvider>
+      </Router>
+    </GoogleOAuthProvider>
   );
 }
 

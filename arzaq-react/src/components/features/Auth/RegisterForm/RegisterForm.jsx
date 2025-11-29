@@ -1,15 +1,18 @@
 // src/components/features/Auth/RegisterForm/RegisterForm.jsx
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../../hooks/useAuth';
 import { useTranslation } from '../../../../hooks/useTranslation';
 import { useFormValidation } from '../../../../hooks/useFormValidation';
+import GoogleAuthButton from '../GoogleAuthButton/GoogleAuthButton';
+import AuthDivider from '../AuthDivider/AuthDivider';
 import styles from '../LoginForm/LoginForm.module.css'; // Reuse same styles
 
 const RegisterForm = () => {
-  const { register } = useAuth();
+  const { register, registerWithGoogle } = useAuth();
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [googleError, setGoogleError] = useState(null);
 
   // Validation rules
   const validationRules = {
@@ -85,6 +88,30 @@ const RegisterForm = () => {
         alert(error.message || t('error_network') || 'An error occurred');
       }
     }
+  };
+
+  // Google register handler
+  const handleGoogleSuccess = async (googleToken) => {
+    setGoogleError(null);
+    try {
+      // Use the selected role from the form
+      await registerWithGoogle(googleToken, values.role || 'client');
+
+      alert('Успешная регистрация через Google!');
+      navigate('/');
+    } catch (error) {
+      if (error.message === 'error_google_user_exists') {
+        setGoogleError('Этот аккаунт Google уже зарегистрирован. Попробуйте войти.');
+      } else {
+        setGoogleError('Ошибка регистрации через Google. Попробуйте снова.');
+      }
+    }
+  };
+
+  // Google error handler
+  const handleGoogleError = (error) => {
+    console.error('Google OAuth error:', error);
+    setGoogleError('Ошибка подключения к Google. Попробуйте снова.');
   };
 
   return (
@@ -187,11 +214,23 @@ const RegisterForm = () => {
       >
         {isSubmitting ? 'Loading...' : t('register_button')}
       </button>
+
+      <AuthDivider />
+
+      <GoogleAuthButton
+        onSuccess={handleGoogleSuccess}
+        onError={handleGoogleError}
+        buttonText="Зарегистрироваться через Google"
+        mode="register"
+      />
+
+      {googleError && (
+        <div className={styles.errorMessage} style={{ textAlign: 'center', marginTop: '10px' }}>
+          {googleError}
+        </div>
+      )}
     </form>
   );
 };
 
 export default RegisterForm;
-
-// src/pages/RegisterPage/RegisterPage.module.css can be empty 
-// (it reuses LoginPage styles)

@@ -45,6 +45,37 @@
 
 ---
 
+## 🔄 Important Updates
+
+### Automatic Geocoding (Новое!)
+**Фронтенд автоматически преобразует адрес в координаты** используя Yandex Geocoder API.
+
+**Что это значит для бэкенда:**
+- Ресторан вводит только адрес в форме
+- Фронтенд автоматически получает latitude/longitude через Yandex API
+- Запрос `POST /api/restaurants` уже содержит координаты
+- Бэкенду НЕ нужно делать геокодинг самостоятельно
+
+**Пример данных, которые фронтенд отправит:**
+```json
+{
+  "name": "Green Garden Bistro",
+  "address": "Al-Farabi Avenue 77, Almaty, Kazakhstan",
+  "latitude": 43.238949,
+  "longitude": 76.889709,
+  "phone": "+7 701 234 5678",
+  "email": "info@restaurant.com",
+  "description": "Fresh organic meals daily"
+}
+```
+
+**Валидация на бэкенде:**
+- Проверяйте что latitude/longitude присутствуют
+- Проверяйте диапазоны: latitude (-90 to 90), longitude (-180 to 180)
+- Если координаты невалидные - вернуть ошибку 400
+
+---
+
 ## 🔧 Backend Requirements
 
 Your backend needs to implement these endpoints:
@@ -73,8 +104,28 @@ GET /api/restaurants/:id
 Returns: { id, name, address, phone, email, description, latitude, longitude, ... }
 
 POST /api/restaurants (restaurant only)
-Body: { name, address, phone, email, description, latitude, longitude }
-Returns: { id, ..., status: 'pending' }
+Headers: { Authorization: 'Bearer {token}' }
+Body: {
+  name: string (required),
+  address: string (required),
+  phone: string (required),
+  email: string (required),
+  description: string (optional),
+  latitude: number (required, автоматически от фронтенда),
+  longitude: number (required, автоматически от фронтенда)
+}
+Returns: {
+  id: number,
+  name: string,
+  address: string,
+  latitude: number,
+  longitude: number,
+  phone: string,
+  email: string,
+  description: string,
+  status: 'pending',
+  created_at: timestamp
+}
 
 GET /api/restaurants/me (restaurant only)
 Returns: { id, ..., status }
@@ -114,6 +165,127 @@ POST /api/foods/upload-image (restaurant only)
 Body: FormData with 'image' field
 Returns: { url: 'https://...' }
 ```
+
+---
+
+## 🔐 CORS Configuration
+
+**Важно!** Настройте CORS для фронтенда:
+
+```python
+# Для разработки
+ALLOWED_ORIGINS = [
+    "http://localhost:3001",  # Vite dev server
+    "http://localhost:5173",  # Альтернативный порт Vite
+]
+
+# Для продакшена
+ALLOWED_ORIGINS = [
+    "https://arzaq.vercel.app",  # Или ваш домен
+]
+```
+
+**Разрешенные методы:** GET, POST, PUT, DELETE, OPTIONS
+**Разрешенные заголовки:** Authorization, Content-Type
+**Credentials:** True (для cookies/tokens)
+
+---
+
+## ⚠️ Error Response Format
+
+Все ошибки должны возвращаться в формате:
+
+```json
+{
+  "message": "User-friendly error message",
+  "error": "ERROR_CODE",
+  "details": {} // optional
+}
+```
+
+### Типичные коды ошибок:
+
+**400 Bad Request:**
+```json
+{
+  "message": "Invalid coordinates. Latitude must be between -90 and 90",
+  "error": "INVALID_COORDINATES"
+}
+```
+
+**401 Unauthorized:**
+```json
+{
+  "message": "Invalid or expired token",
+  "error": "UNAUTHORIZED"
+}
+```
+
+**403 Forbidden:**
+```json
+{
+  "message": "You don't have permission to perform this action",
+  "error": "FORBIDDEN"
+}
+```
+
+**404 Not Found:**
+```json
+{
+  "message": "Restaurant not found",
+  "error": "NOT_FOUND"
+}
+```
+
+**409 Conflict:**
+```json
+{
+  "message": "A restaurant with this email already exists",
+  "error": "RESTAURANT_EXISTS"
+}
+```
+
+**500 Internal Server Error:**
+```json
+{
+  "message": "An unexpected error occurred. Please try again later.",
+  "error": "INTERNAL_ERROR"
+}
+```
+
+---
+
+## 🧪 Testing Checklist
+
+Перед запуском в продакшен проверьте:
+
+### Authentication
+- [ ] Регистрация с ролью 'client' работает
+- [ ] Регистрация с ролью 'restaurant' работает
+- [ ] Login возвращает JWT token
+- [ ] GET /api/auth/me возвращает данные с role
+- [ ] Невалидный token возвращает 401
+
+### Restaurants
+- [ ] Restaurant может создать профиль
+- [ ] Координаты сохраняются правильно
+- [ ] Status по умолчанию 'pending'
+- [ ] Admin видит pending рестораны
+- [ ] Admin может approve/reject
+- [ ] GET /api/restaurants?status=approved возвращает только approved
+- [ ] GET /api/restaurants/:id работает
+
+### Foods
+- [ ] Restaurant может добавить еду
+- [ ] Загрузка изображения работает (multipart/form-data)
+- [ ] GET /api/foods?restaurant_id=X возвращает еду ресторана
+- [ ] DELETE работает и удаляет еду
+- [ ] Цены сохраняются как numbers (не strings)
+
+### CORS
+- [ ] Запросы с localhost:3001 проходят
+- [ ] Preflight OPTIONS запросы работают
+- [ ] Authorization header передается
 
 ---
 

@@ -21,6 +21,8 @@ const YandexMap = () => {
         setRestaurants(data);
       } catch (err) {
         console.error('Error loading restaurants:', err);
+        // Fallback to empty array on error
+        setRestaurants([]);
       }
     };
     loadRestaurants();

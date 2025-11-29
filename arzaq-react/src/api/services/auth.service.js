@@ -113,6 +113,67 @@ const authService = {
   getToken() {
     return localStorage.getItem('authToken');
   },
+
+  /**
+   * Вход через Google OAuth
+   * @param {string} googleToken - Access token от Google
+   * @returns {Promise} {access_token, token_type}
+   */
+  async googleLogin(googleToken) {
+    try {
+      const response = await apiClient.post(API_ENDPOINTS.AUTH.GOOGLE_LOGIN, {
+        token: googleToken,
+      });
+
+      const { access_token, token_type } = response.data;
+
+      // Сохраняем токен
+      localStorage.setItem('authToken', access_token);
+
+      return {
+        token: access_token,
+        tokenType: token_type,
+      };
+    } catch (error) {
+      if (error.status === 401) {
+        throw new Error('error_google_login_failed');
+      }
+      if (error.status === 404) {
+        throw new Error('error_google_user_not_found');
+      }
+      throw error;
+    }
+  },
+
+  /**
+   * Регистрация через Google OAuth
+   * @param {string} googleToken - Access token от Google
+   * @param {string} role - Роль пользователя (client или restaurant)
+   * @returns {Promise} {access_token, token_type}
+   */
+  async googleRegister(googleToken, role = 'client') {
+    try {
+      const response = await apiClient.post(API_ENDPOINTS.AUTH.GOOGLE_REGISTER, {
+        token: googleToken,
+        role: role,
+      });
+
+      const { access_token, token_type } = response.data;
+
+      // Сохраняем токен
+      localStorage.setItem('authToken', access_token);
+
+      return {
+        token: access_token,
+        tokenType: token_type,
+      };
+    } catch (error) {
+      if (error.status === 409) {
+        throw new Error('error_google_user_exists');
+      }
+      throw error;
+    }
+  },
 };
 
 export default authService;

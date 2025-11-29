@@ -4,7 +4,8 @@ import Header from '../../components/layout/Header/Header';
 import BottomNav from '../../components/layout/BottomNav/BottomNav';
 import ImageUpload from '../../components/common/ImageUpload/ImageUpload';
 import { restaurantService, foodService } from '../../api/services';
-import { IoAdd, IoRestaurant, IoPencil, IoTrash } from 'react-icons/io5';
+import { geocodeAddress, validateAddressForGeocoding } from '../../utils/geocoding';
+import { IoAdd, IoRestaurant, IoPencil, IoTrash, IoCheckmarkCircle, IoLocationSharp } from 'react-icons/io5';
 import styles from './RestaurantDashboard.module.css';
 
 const RestaurantDashboard = () => {
@@ -13,6 +14,10 @@ const RestaurantDashboard = () => {
   const [showRestaurantForm, setShowRestaurantForm] = useState(false);
   const [showFoodForm, setShowFoodForm] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGeocoding, setIsGeocoding] = useState(false);
+  const [addressVerified, setAddressVerified] = useState(false);
+  const [geocodedCoordinates, setGeocodedCoordinates] = useState(null);
 
   // Restaurant Form State
   const [restaurantData, setRestaurantData] = useState({
@@ -44,6 +49,7 @@ const RestaurantDashboard = () => {
   const loadRestaurantData = async () => {
     try {
       setIsLoading(true);
+
       const restaurantData = await restaurantService.getMyRestaurant();
       setRestaurant(restaurantData);
 
@@ -53,29 +59,112 @@ const RestaurantDashboard = () => {
       }
     } catch (err) {
       console.error('Error loading restaurant:', err);
+
+      // If no restaurant found (404), show create form
       if (err.response?.status === 404) {
         setShowRestaurantForm(true);
+      } else {
+        // For other errors, show user-friendly message
+        alert('Failed to load restaurant data. Please try again later.');
       }
     } finally {
       setIsLoading(false);
     }
   };
 
+  const handleVerifyAddress = async () => {
+    setIsGeocoding(true);
+    setAddressVerified(false);
+    setGeocodedCoordinates(null);
+
+    try {
+      // Validate address format first
+      const validation = validateAddressForGeocoding(restaurantData.address);
+      if (!validation.isValid) {
+        alert(validation.message);
+        return;
+      }
+
+      // Geocode address
+      const coordinates = await geocodeAddress(restaurantData.address);
+      setGeocodedCoordinates(coordinates);
+      setAddressVerified(true);
+
+      // Update state with coordinates for preview
+      setRestaurantData({
+        ...restaurantData,
+        latitude: coordinates.latitude.toString(),
+        longitude: coordinates.longitude.toString()
+      });
+
+      alert(`Address verified successfully!\nCoordinates: ${coordinates.latitude.toFixed(6)}, ${coordinates.longitude.toFixed(6)}`);
+    } catch (err) {
+      console.error('Geocoding error:', err);
+      alert(err.message || 'Failed to verify address. Please try again.');
+      setAddressVerified(false);
+      setGeocodedCoordinates(null);
+    } finally {
+      setIsGeocoding(false);
+    }
+  };
+
   const handleRestaurantSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
+
     try {
-      const newRestaurant = await restaurantService.createRestaurant(restaurantData);
+      let coordinates = geocodedCoordinates;
+
+      // If address wasn't verified yet, geocode it now
+      if (!coordinates) {
+        setIsGeocoding(true);
+
+        // Validate address format
+        const validation = validateAddressForGeocoding(restaurantData.address);
+        if (!validation.isValid) {
+          alert(validation.message);
+          setIsSubmitting(false);
+          setIsGeocoding(false);
+          return;
+        }
+
+        // Geocode address
+        coordinates = await geocodeAddress(restaurantData.address);
+        setIsGeocoding(false);
+      }
+
+      // Prepare data with geocoded coordinates
+      const dataToSend = {
+        name: restaurantData.name,
+        address: restaurantData.address,
+        phone: restaurantData.phone,
+        email: restaurantData.email,
+        description: restaurantData.description,
+        latitude: coordinates.latitude,
+        longitude: coordinates.longitude
+      };
+
+      // Create restaurant
+      const newRestaurant = await restaurantService.createRestaurant(dataToSend);
       setRestaurant(newRestaurant);
       setShowRestaurantForm(false);
-      alert('Restaurant profile created! Waiting for admin approval.');
+      alert('Restaurant profile created successfully! Your application is now pending admin approval.');
     } catch (err) {
-      alert('Error creating restaurant profile');
-      console.error(err);
+      console.error('Error creating restaurant:', err);
+
+      // Show user-friendly error message
+      const errorMessage = err.message || err.response?.data?.message || 'Failed to create restaurant profile. Please try again.';
+      alert(errorMessage);
+    } finally {
+      setIsSubmitting(false);
+      setIsGeocoding(false);
     }
   };
 
   const handleFoodSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
+
     try {
       let imageUrl = null;
 
@@ -85,8 +174,15 @@ const RestaurantDashboard = () => {
         imageUrl = uploadResult.url;
       }
 
+      // Create food item with image URL
       await foodService.createFood({
-        ...foodData,
+        name: foodData.name,
+        description: foodData.description,
+        price: parseFloat(foodData.price),
+        oldPrice: parseFloat(foodData.oldPrice),
+        discount: parseInt(foodData.discount),
+        quantity: parseInt(foodData.quantity),
+        expiresAt: foodData.expiresAt,
         image: imageUrl,
         restaurant_id: restaurant.id
       });
@@ -94,10 +190,16 @@ const RestaurantDashboard = () => {
       alert('Food item added successfully!');
       setShowFoodForm(false);
       resetFoodForm();
-      loadRestaurantData();
+
+      // Reload data to show new food item
+      await loadRestaurantData();
     } catch (err) {
-      alert('Error adding food item');
-      console.error(err);
+      console.error('Error adding food item:', err);
+
+      const errorMessage = err.response?.data?.message || 'Failed to add food item. Please try again.';
+      alert(errorMessage);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -106,11 +208,15 @@ const RestaurantDashboard = () => {
 
     try {
       await foodService.deleteFood(foodId);
-      alert('Food item deleted');
-      loadRestaurantData();
+      alert('Food item deleted successfully!');
+
+      // Reload data to reflect deletion
+      await loadRestaurantData();
     } catch (err) {
-      alert('Error deleting food item');
-      console.error(err);
+      console.error('Error deleting food item:', err);
+
+      const errorMessage = err.response?.data?.message || 'Failed to delete food item. Please try again.';
+      alert(errorMessage);
     }
   };
 
@@ -137,7 +243,18 @@ const RestaurantDashboard = () => {
   };
 
   if (isLoading) {
-    return <div className={styles.loading}>Loading...</div>;
+    return (
+      <div className="page-container">
+        <Header />
+        <main id="main-content" className="main-content">
+          <div className={styles.loading}>
+            <div className={styles.spinner}></div>
+            <p>Loading restaurant data...</p>
+          </div>
+        </main>
+        <BottomNav />
+      </div>
+    );
   }
 
   if (!restaurant) {
@@ -163,37 +280,53 @@ const RestaurantDashboard = () => {
               </div>
 
               <div className={styles.formGroup}>
-                <label>Address *</label>
+                <label>
+                  Full Address *
+                  <span className={styles.hint}>
+                    <IoLocationSharp /> Enter complete address including street number, city, and country
+                  </span>
+                </label>
                 <input
                   type="text"
                   value={restaurantData.address}
-                  onChange={(e) => setRestaurantData({ ...restaurantData, address: e.target.value })}
+                  onChange={(e) => {
+                    setRestaurantData({ ...restaurantData, address: e.target.value });
+                    // Reset verification when address changes
+                    setAddressVerified(false);
+                    setGeocodedCoordinates(null);
+                  }}
+                  placeholder="e.g., Al-Farabi Avenue 77, Almaty, Kazakhstan"
                   required
                 />
-              </div>
 
-              <div className={styles.formRow}>
-                <div className={styles.formGroup}>
-                  <label>Latitude</label>
-                  <input
-                    type="number"
-                    step="any"
-                    value={restaurantData.latitude}
-                    onChange={(e) => setRestaurantData({ ...restaurantData, latitude: e.target.value })}
-                    placeholder="43.238949"
-                  />
-                </div>
+                {/* Address verification button */}
+                <button
+                  type="button"
+                  onClick={handleVerifyAddress}
+                  disabled={!restaurantData.address || isGeocoding}
+                  className={`${styles.verifyBtn} ${addressVerified ? styles.verified : ''}`}
+                >
+                  {isGeocoding ? (
+                    'Verifying address...'
+                  ) : addressVerified ? (
+                    <>
+                      <IoCheckmarkCircle /> Address Verified
+                    </>
+                  ) : (
+                    <>
+                      <IoLocationSharp /> Verify Address
+                    </>
+                  )}
+                </button>
 
-                <div className={styles.formGroup}>
-                  <label>Longitude</label>
-                  <input
-                    type="number"
-                    step="any"
-                    value={restaurantData.longitude}
-                    onChange={(e) => setRestaurantData({ ...restaurantData, longitude: e.target.value })}
-                    placeholder="76.889709"
-                  />
-                </div>
+                {/* Show coordinates preview when verified */}
+                {addressVerified && geocodedCoordinates && (
+                  <div className={styles.coordinatesPreview}>
+                    <small>
+                      Coordinates: {geocodedCoordinates.latitude.toFixed(6)}, {geocodedCoordinates.longitude.toFixed(6)}
+                    </small>
+                  </div>
+                )}
               </div>
 
               <div className={styles.formRow}>
@@ -228,9 +361,15 @@ const RestaurantDashboard = () => {
                 />
               </div>
 
-              <button type="submit" className={styles.submitBtn}>
-                Create Restaurant Profile
+              <button type="submit" className={styles.submitBtn} disabled={isSubmitting || isGeocoding}>
+                {isGeocoding ? 'Converting address to coordinates...' : isSubmitting ? 'Creating restaurant...' : 'Create Restaurant Profile'}
               </button>
+
+              {!addressVerified && (
+                <p className={styles.verifyHint}>
+                  Tip: Click "Verify Address" to ensure your address is correct before submitting
+                </p>
+              )}
             </form>
           </div>
         </main>
@@ -389,11 +528,16 @@ const RestaurantDashboard = () => {
                   </div>
 
                   <div className={styles.modalActions}>
-                    <button type="button" onClick={() => setShowFoodForm(false)} className={styles.cancelBtn}>
+                    <button
+                      type="button"
+                      onClick={() => setShowFoodForm(false)}
+                      className={styles.cancelBtn}
+                      disabled={isSubmitting}
+                    >
                       Cancel
                     </button>
-                    <button type="submit" className={styles.submitBtn}>
-                      Add Food Item
+                    <button type="submit" className={styles.submitBtn} disabled={isSubmitting}>
+                      {isSubmitting ? 'Adding...' : 'Add Food Item'}
                     </button>
                   </div>
                 </form>

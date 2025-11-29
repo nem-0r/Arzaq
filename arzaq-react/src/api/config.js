@@ -7,6 +7,8 @@ export const API_ENDPOINTS = {
     REGISTER: '/api/auth/register',
     LOGIN: '/api/auth/login',
     ME: '/api/auth/me',
+    GOOGLE_LOGIN: '/api/auth/google/login',
+    GOOGLE_REGISTER: '/api/auth/google/register',
   },
 
   // User endpoints

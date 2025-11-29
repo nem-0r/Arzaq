@@ -27,15 +27,23 @@ const RestaurantDetailsPage = () => {
   const loadRestaurantData = async () => {
     try {
       setIsLoading(true);
+      setError(null);
+
       const [restaurantData, foodsData] = await Promise.all([
         restaurantService.getRestaurantById(id),
         foodService.getFoodsByRestaurant(id)
       ]);
+
       setRestaurant(restaurantData);
       setFoods(foodsData);
     } catch (err) {
-      setError('Failed to load restaurant details');
-      console.error(err);
+      console.error('Error loading restaurant data:', err);
+
+      if (err.response?.status === 404) {
+        setError('Restaurant not found');
+      } else {
+        setError('Failed to load restaurant details. Please try again later.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -53,8 +61,15 @@ const RestaurantDetailsPage = () => {
 
   if (isLoading) {
     return (
-      <div className={styles.loading}>
-        <p>Loading restaurant...</p>
+      <div className="page-container">
+        <Header />
+        <main id="main-content" className="main-content">
+          <div className={styles.loading}>
+            <div className={styles.spinner}></div>
+            <p>Loading restaurant details...</p>
+          </div>
+        </main>
+        <BottomNav />
       </div>
     );
   }

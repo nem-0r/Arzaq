@@ -1,15 +1,18 @@
 // src/components/features/Auth/LoginForm/LoginForm.jsx
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../../hooks/useAuth';
 import { useTranslation } from '../../../../hooks/useTranslation';
 import { useFormValidation } from '../../../../hooks/useFormValidation';
+import GoogleAuthButton from '../GoogleAuthButton/GoogleAuthButton';
+import AuthDivider from '../AuthDivider/AuthDivider';
 import styles from './LoginForm.module.css';
 
 const LoginForm = () => {
-  const { login, currentUser } = useAuth();
+  const { login, loginWithGoogle, currentUser } = useAuth();
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [googleError, setGoogleError] = useState(null);
 
   // Validation rules
   const validationRules = {
@@ -48,6 +51,24 @@ const LoginForm = () => {
     handleChange({ target: { name, value: checked } });
   };
 
+  // Helper function for role-based redirection
+  const redirectByRole = (userData) => {
+    const userRole = userData?.role || 'client';
+
+    switch (userRole) {
+      case 'restaurant':
+        navigate('/restaurant-dashboard');
+        break;
+      case 'admin':
+        navigate('/admin');
+        break;
+      case 'client':
+      default:
+        navigate('/');
+        break;
+    }
+  };
+
   // Submit handler with role-based redirection
   const onSubmit = async (formValues) => {
     try {
@@ -57,24 +78,10 @@ const LoginForm = () => {
       setTimeout(() => {
         // Get user data from localStorage (it's set in AuthContext after login)
         const userData = JSON.parse(localStorage.getItem('currentUser'));
-        const userRole = userData?.role || 'client';
 
         alert(t('alert_login_success'));
 
-        // Role-based redirection
-        switch (userRole) {
-          case 'restaurant':
-            navigate('/restaurant-dashboard');
-            break;
-          case 'admin':
-            navigate('/admin');
-            break;
-          case 'client':
-          default:
-            // Clients stay on home page or go where they intended
-            navigate('/');
-            break;
-        }
+        redirectByRole(userData);
       }, 100);
 
     } catch (error) {
@@ -90,6 +97,33 @@ const LoginForm = () => {
         alert(error.message || t('error_network') || 'An error occurred');
       }
     }
+  };
+
+  // Google login handler
+  const handleGoogleSuccess = async (googleToken) => {
+    setGoogleError(null);
+    try {
+      await loginWithGoogle(googleToken);
+
+      // Wait a moment for currentUser to be updated
+      setTimeout(() => {
+        const userData = JSON.parse(localStorage.getItem('currentUser'));
+        alert('Успешный вход через Google!');
+        redirectByRole(userData);
+      }, 100);
+    } catch (error) {
+      if (error.message === 'error_google_user_not_found') {
+        setGoogleError('Аккаунт не найден. Пожалуйста, зарегистрируйтесь.');
+      } else {
+        setGoogleError('Ошибка входа через Google. Попробуйте снова.');
+      }
+    }
+  };
+
+  // Google error handler
+  const handleGoogleError = (error) => {
+    console.error('Google OAuth error:', error);
+    setGoogleError('Ошибка подключения к Google. Попробуйте снова.');
   };
 
   return (
@@ -157,6 +191,21 @@ const LoginForm = () => {
       >
         {isSubmitting ? 'Loading...' : t('login_button')}
       </button>
+
+      <AuthDivider />
+
+      <GoogleAuthButton
+        onSuccess={handleGoogleSuccess}
+        onError={handleGoogleError}
+        buttonText="Войти через Google"
+        mode="login"
+      />
+
+      {googleError && (
+        <div className={styles.errorMessage} style={{ textAlign: 'center', marginTop: '10px' }}>
+          {googleError}
+        </div>
+      )}
     </form>
   );
 };

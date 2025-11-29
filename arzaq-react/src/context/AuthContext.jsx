@@ -88,13 +88,59 @@ export const AuthProvider = ({ children }) => {
     setIsAuthenticated(false);
   }, []);
 
+  // Google Login
+  const loginWithGoogle = useCallback(async (googleToken) => {
+    try {
+      // Получаем JWT токен от бэкенда
+      const { token } = await authService.googleLogin(googleToken);
+
+      // Получаем данные пользователя
+      const userData = await authService.getCurrentUser();
+
+      // Обновляем состояние
+      setCurrentUser(userData);
+      setIsAuthenticated(true);
+
+      // Сохраняем в localStorage
+      localStorage.setItem('currentUser', JSON.stringify(userData));
+
+      return true;
+    } catch (error) {
+      throw error;
+    }
+  }, []);
+
+  // Google Register
+  const registerWithGoogle = useCallback(async (googleToken, role = 'client') => {
+    try {
+      // Получаем JWT токен от бэкенда
+      const { token } = await authService.googleRegister(googleToken, role);
+
+      // Получаем данные пользователя
+      const userData = await authService.getCurrentUser();
+
+      // Обновляем состояние
+      setCurrentUser(userData);
+      setIsAuthenticated(true);
+
+      // Сохраняем в localStorage
+      localStorage.setItem('currentUser', JSON.stringify(userData));
+
+      return true;
+    } catch (error) {
+      throw error;
+    }
+  }, []);
+
   const value = {
     currentUser,
     isAuthenticated,
     isLoading,
     register,
     login,
-    logout
+    logout,
+    loginWithGoogle,
+    registerWithGoogle,
   };
 
   return (
