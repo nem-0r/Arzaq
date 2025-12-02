@@ -139,6 +139,7 @@ const LoginForm = () => {
           onBlur={handleBlur}
           placeholder={t('login_email_placeholder')}
           disabled={isSubmitting}
+          autoComplete="email"
           className={touched.email && errors.email ? styles.inputError : ''}
         />
         {touched.email && errors.email && (
@@ -157,6 +158,7 @@ const LoginForm = () => {
           onBlur={handleBlur}
           placeholder={t('login_password_placeholder')}
           disabled={isSubmitting}
+          autoComplete="current-password"
           className={touched.password && errors.password ? styles.inputError : ''}
         />
         {touched.password && errors.password && (
