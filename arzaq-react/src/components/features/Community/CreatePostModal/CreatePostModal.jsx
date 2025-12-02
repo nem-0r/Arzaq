@@ -10,13 +10,16 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated }) => {
     text: '',
     restaurantId: '',
     restaurantName: '',
-    restaurantAddress: ''
+    restaurantAddress: '',
+    image: null,
+    imagePreview: null
   });
   const [restaurants, setRestaurants] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [showRestaurantDropdown, setShowRestaurantDropdown] = useState(false);
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   // Load restaurants on mount
   useEffect(() => {
@@ -80,6 +83,49 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated }) => {
     setShowRestaurantDropdown(false);
   };
 
+  const handleImageChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+      setErrors({ ...errors, image: 'Please select a valid image file (JPG, PNG, GIF, or WebP)' });
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      setErrors({ ...errors, image: 'Image size must be less than 5MB' });
+      return;
+    }
+
+    // Clear any previous image errors
+    if (errors.image) {
+      setErrors({ ...errors, image: null });
+    }
+
+    // Create preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setFormData({
+        ...formData,
+        image: file,
+        imagePreview: reader.result
+      });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveImage = () => {
+    setFormData({
+      ...formData,
+      image: null,
+      imagePreview: null
+    });
+  };
+
   const validateForm = () => {
     const newErrors = {};
 
@@ -107,6 +153,26 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated }) => {
     setIsSubmitting(true);
 
     try {
+      let imageUrl = null;
+
+      // Upload image first if one is selected
+      if (formData.image) {
+        setIsUploadingImage(true);
+        try {
+          const uploadResponse = await api.upload.image(formData.image);
+          if (uploadResponse.success) {
+            imageUrl = uploadResponse.url;
+          }
+        } catch (uploadError) {
+          console.error('Failed to upload image:', uploadError);
+          setErrors({ submit: 'Failed to upload image. Please try again.' });
+          setIsUploadingImage(false);
+          setIsSubmitting(false);
+          return;
+        }
+        setIsUploadingImage(false);
+      }
+
       const postData = {
         text: formData.text.trim(),
         location: `📍 ${formData.restaurantName}`,
@@ -116,7 +182,8 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated }) => {
         restaurantId: formData.restaurantId,
         restaurantName: formData.restaurantName,
         restaurantAddress: formData.restaurantAddress,
-        userId: currentUser?.email
+        userId: currentUser?.email,
+        image: imageUrl // Add image URL if uploaded
       };
 
       const response = await api.posts.create(postData);
@@ -127,7 +194,9 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated }) => {
           text: '',
           restaurantId: '',
           restaurantName: '',
-          restaurantAddress: ''
+          restaurantAddress: '',
+          image: null,
+          imagePreview: null
         });
         setSearchQuery('');
         setErrors({});
@@ -152,7 +221,9 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated }) => {
         text: '',
         restaurantId: '',
         restaurantName: '',
-        restaurantAddress: ''
+        restaurantAddress: '',
+        image: null,
+        imagePreview: null
       });
       setSearchQuery('');
       setErrors({});
@@ -243,6 +314,50 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated }) => {
             )}
           </div>
 
+          <div className={styles.formGroup}>
+            <label className={styles.label}>
+              Add Photo (Optional)
+            </label>
+
+            {!formData.imagePreview ? (
+              <div className={styles.imageUpload}>
+                <input
+                  type="file"
+                  id="imageUpload"
+                  accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                  onChange={handleImageChange}
+                  className={styles.imageInput}
+                  disabled={isSubmitting}
+                />
+                <label htmlFor="imageUpload" className={styles.imageUploadLabel}>
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M17 8L12 3L7 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M12 3V15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <span>Click to upload image</span>
+                  <span className={styles.imageHint}>JPG, PNG, GIF or WebP (Max 5MB)</span>
+                </label>
+              </div>
+            ) : (
+              <div className={styles.imagePreview}>
+                <img src={formData.imagePreview} alt="Preview" />
+                <button
+                  type="button"
+                  className={styles.removeImageBtn}
+                  onClick={handleRemoveImage}
+                  disabled={isSubmitting}
+                >
+                  Remove Image
+                </button>
+              </div>
+            )}
+
+            {errors.image && (
+              <span className={styles.error}>{errors.image}</span>
+            )}
+          </div>
+
           {errors.submit && (
             <div className={styles.submitError}>{errors.submit}</div>
           )}
@@ -259,9 +374,9 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated }) => {
             <button
               type="submit"
               className={styles.submitBtn}
-              disabled={isSubmitting}
+              disabled={isSubmitting || isUploadingImage}
             >
-              {isSubmitting ? 'Posting...' : 'Post'}
+              {isUploadingImage ? 'Uploading image...' : isSubmitting ? 'Posting...' : 'Post'}
             </button>
           </div>
         </form>

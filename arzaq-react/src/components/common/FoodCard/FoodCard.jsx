@@ -14,6 +14,7 @@ const FoodCard = ({
   image,
   title,
   restaurant,
+  restaurantId = null,        // Restaurant ID for navigation
   price,
   oldPrice,
   discount,
@@ -23,7 +24,8 @@ const FoodCard = ({
   expiresInMinutes = null,    // NEW: Minutes until expiration
   status = 'pickup_today',
   pickupTime,
-  onAddClick
+  onAddClick,
+  onCardClick = null          // Optional click handler for card navigation
 }) => {
   // Status badge configuration
   const statusConfig = {
@@ -41,9 +43,24 @@ const FoodCard = ({
   const isLowStock = portions && portions <= 3;
   const isExpiringSoon = expiresInMinutes && expiresInMinutes <= 60;
 
+  const handleCardClick = () => {
+    if (onCardClick && restaurantId) {
+      onCardClick(restaurantId);
+    }
+  };
+
+  const handleRescueClick = (e) => {
+    e.stopPropagation(); // Prevent card click when clicking rescue button
+    if (onAddClick) {
+      onAddClick();
+    }
+  };
+
   return (
     <article
       className={styles.card}
+      onClick={handleCardClick}
+      style={{ cursor: onCardClick && restaurantId ? 'pointer' : 'default' }}
       role="article"
       aria-label={`${title} from ${restaurant}`}
     >
@@ -156,7 +173,7 @@ const FoodCard = ({
           </div>
           <button
             className={styles.rescueBtn}
-            onClick={() => onAddClick && onAddClick()}
+            onClick={handleRescueClick}
             aria-label={`Rescue ${title} from ${restaurant} for ${price} dollars`}
           >
             <IoLeafOutline size={18} aria-hidden="true" />

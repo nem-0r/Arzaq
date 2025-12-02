@@ -291,6 +291,96 @@
   transform: none;
 }
 
+/* Image Upload Styles */
+.imageUpload {
+  width: 100%;
+  position: relative;
+}
+
+.imageInput {
+  display: none;
+}
+
+.imageUploadLabel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-xl);
+  border: 2px dashed var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--background-gray);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  min-height: 200px;
+}
+
+.imageUploadLabel:hover {
+  border-color: var(--primary-green);
+  background: rgba(157, 184, 150, 0.05);
+}
+
+.imageUploadLabel svg {
+  color: var(--text-light);
+  transition: all var(--transition-fast);
+}
+
+.imageUploadLabel:hover svg {
+  color: var(--primary-green);
+  transform: translateY(-4px);
+}
+
+.imageUploadLabel span:first-of-type {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-dark);
+}
+
+.imageHint {
+  font-size: 12px;
+  color: var(--text-light);
+}
+
+.imagePreview {
+  position: relative;
+  width: 100%;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 2px solid var(--border-color);
+}
+
+.imagePreview img {
+  width: 100%;
+  height: auto;
+  max-height: 400px;
+  object-fit: contain;
+  display: block;
+  background: var(--background-gray);
+}
+
+.removeImageBtn {
+  width: 100%;
+  padding: var(--spacing-md);
+  background: var(--error-red);
+  color: white;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  font-family: 'Poppins', sans-serif;
+}
+
+.removeImageBtn:hover:not(:disabled) {
+  background: #C0392B;
+}
+
+.removeImageBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* Mobile adjustments */
 @media (max-width: 768px) {
   .modal {

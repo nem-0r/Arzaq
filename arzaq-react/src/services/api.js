@@ -181,6 +181,161 @@ const api = {
     }
   },
 
+  // Likes endpoints
+  likes: {
+    // Toggle like on a post
+    toggleLike: async (postId, userId) => {
+      // BACKEND: Replace with actual API call
+      /*
+      const response = await fetch(`${API_BASE_URL}/posts/${postId}/like`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${getAuthToken()}`
+        },
+        body: JSON.stringify({ userId })
+      });
+      return handleResponse(response);
+      */
+
+      // Temporary: Save to localStorage
+      const likesKey = `post_${postId}_likes`;
+      const likes = JSON.parse(localStorage.getItem(likesKey) || '[]');
+
+      const userIndex = likes.indexOf(userId);
+      let isLiked;
+
+      if (userIndex > -1) {
+        // Unlike
+        likes.splice(userIndex, 1);
+        isLiked = false;
+      } else {
+        // Like
+        likes.push(userId);
+        isLiked = true;
+      }
+
+      localStorage.setItem(likesKey, JSON.stringify(likes));
+
+      return {
+        success: true,
+        isLiked,
+        likesCount: likes.length,
+        likes
+      };
+    },
+
+    // Get likes for a post
+    getLikes: async (postId) => {
+      // BACKEND: Replace with actual API call
+      /*
+      const response = await fetch(`${API_BASE_URL}/posts/${postId}/likes`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      return handleResponse(response);
+      */
+
+      // Temporary: Get from localStorage
+      const likesKey = `post_${postId}_likes`;
+      const likes = JSON.parse(localStorage.getItem(likesKey) || '[]');
+
+      return {
+        success: true,
+        likesCount: likes.length,
+        likes
+      };
+    }
+  },
+
+  // Comments endpoints
+  comments: {
+    // Get comments for a post
+    getComments: async (postId) => {
+      // BACKEND: Replace with actual API call
+      /*
+      const response = await fetch(`${API_BASE_URL}/posts/${postId}/comments`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      return handleResponse(response);
+      */
+
+      // Temporary: Get from localStorage
+      const commentsKey = `post_${postId}_comments`;
+      const comments = JSON.parse(localStorage.getItem(commentsKey) || '[]');
+
+      return {
+        success: true,
+        comments
+      };
+    },
+
+    // Create a comment
+    create: async (postId, commentData) => {
+      // BACKEND: Replace with actual API call
+      /*
+      const response = await fetch(`${API_BASE_URL}/posts/${postId}/comments`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${getAuthToken()}`
+        },
+        body: JSON.stringify(commentData)
+      });
+      return handleResponse(response);
+      */
+
+      // Temporary: Save to localStorage
+      const commentsKey = `post_${postId}_comments`;
+      const comments = JSON.parse(localStorage.getItem(commentsKey) || '[]');
+
+      const newComment = {
+        id: Date.now(),
+        postId,
+        ...commentData,
+        createdAt: new Date().toISOString()
+      };
+
+      comments.push(newComment);
+      localStorage.setItem(commentsKey, JSON.stringify(comments));
+
+      return {
+        success: true,
+        comment: newComment
+      };
+    },
+
+    // Delete a comment
+    delete: async (postId, commentId) => {
+      // BACKEND: Replace with actual API call
+      /*
+      const response = await fetch(`${API_BASE_URL}/posts/${postId}/comments/${commentId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${getAuthToken()}`
+        }
+      });
+      return handleResponse(response);
+      */
+
+      // Temporary: Remove from localStorage
+      const commentsKey = `post_${postId}_comments`;
+      const comments = JSON.parse(localStorage.getItem(commentsKey) || '[]');
+      const filtered = comments.filter(c => c.id !== commentId);
+
+      localStorage.setItem(commentsKey, JSON.stringify(filtered));
+
+      return {
+        success: true
+      };
+    }
+  },
+
   // Restaurants endpoints
   restaurants: {
     search: async (query) => {
@@ -210,6 +365,52 @@ const api = {
         : mockRestaurants;
 
       return { success: true, restaurants: filtered };
+    }
+  },
+
+  // Upload endpoints
+  upload: {
+    // Upload image file
+    image: async (file) => {
+      // BACKEND: Replace with actual API call
+      /*
+      const formData = new FormData();
+      formData.append('image', file);
+
+      const response = await fetch(`${API_BASE_URL}/upload/image`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${getAuthToken()}`
+        },
+        body: formData
+      });
+      return handleResponse(response);
+      */
+
+      // Temporary: Convert to base64 and store in localStorage
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+
+        reader.onloadend = () => {
+          const base64String = reader.result;
+
+          // In production, this would return a URL from your CDN/storage
+          // For now, we'll just return the base64 string as the URL
+          resolve({
+            success: true,
+            url: base64String,
+            filename: file.name,
+            size: file.size,
+            type: file.type
+          });
+        };
+
+        reader.onerror = () => {
+          reject(new Error('Failed to read file'));
+        };
+
+        reader.readAsDataURL(file);
+      });
     }
   },
 

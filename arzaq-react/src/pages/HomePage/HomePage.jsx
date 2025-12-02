@@ -1,5 +1,5 @@
 // src/pages/HomePage/HomePage.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { IoLocationSharp, IoLeafOutline, IoHeartOutline, IoPeopleOutline } from 'react-icons/io5';
 import Header from '../../components/layout/Header/Header';
@@ -10,10 +10,7 @@ import UserImpact from '../../components/features/Profile/UserImpact/UserImpact'
 import { useTranslation } from '../../hooks/useTranslation';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../hooks/useAuth';
-import {
-  recommendedFoods,
-  nearbyRestaurants
-} from '../../utils/mockData';
+import { foodService } from '../../api/services';
 import styles from './HomePage.module.css';
 
 const HomePage = () => {
@@ -21,18 +18,52 @@ const HomePage = () => {
   const { addToCart } = useCart();
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
+
+  // State management
+  const [foods, setFoods] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
 
+  // Load foods from API
+  useEffect(() => {
+    loadFoods();
+  }, []);
+
+  const loadFoods = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      // Fetch all available foods
+      const foodsData = await foodService.getAllFoods({ limit: 20 });
+      setFoods(foodsData);
+    } catch (err) {
+      console.error('Error loading foods:', err);
+      setError('Failed to load available food items. Please try again later.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleAddToCart = (food) => {
-    addToCart(food);
-    setToastMessage(`${food.title} rescued!`);
+    addToCart({
+      ...food,
+      title: food.name,
+      restaurant: food.restaurant_name
+    });
+    setToastMessage(`${food.name} rescued!`);
     setShowToast(true);
     setTimeout(() => setShowToast(false), 2000);
   };
 
   const handleFindFood = () => {
     navigate('/map');
+  };
+
+  const handleCardClick = (restaurantId) => {
+    navigate(`/restaurants/${restaurantId}`);
   };
 
   return (
@@ -85,18 +116,43 @@ const HomePage = () => {
           title="Available Food Near You"
           subtitle="Rescue surplus food before it goes to waste"
         >
-          {recommendedFoods.map((food) => (
-            <FoodCard
-              key={food.id}
-              image={food.image}
-              title={food.title}
-              restaurant={food.restaurant}
-              price={food.price}
-              status="pickup_today"
-              pickupTime="Today 6-8 PM"
-              onAddClick={() => handleAddToCart(food)}
-            />
-          ))}
+          {isLoading ? (
+            <div className={styles.loadingSection}>
+              <div className={styles.spinner}></div>
+              <p>Loading delicious food...</p>
+            </div>
+          ) : error ? (
+            <div className={styles.errorSection}>
+              <p>{error}</p>
+              <button onClick={loadFoods} className={styles.retryBtn}>
+                Try Again
+              </button>
+            </div>
+          ) : foods.length === 0 ? (
+            <div className={styles.emptySection}>
+              <IoLeafOutline size={48} className={styles.emptyIcon} />
+              <p>No food items available at the moment</p>
+              <p className={styles.emptySubtext}>Check back soon for new rescue opportunities!</p>
+            </div>
+          ) : (
+            foods.map((food) => (
+              <FoodCard
+                key={food.id}
+                image={food.image || '/placeholder-food.jpg'}
+                title={food.name}
+                restaurant={food.restaurant_name}
+                restaurantId={food.restaurant_id}
+                price={food.price}
+                oldPrice={food.old_price}
+                discount={food.discount}
+                portions={food.quantity}
+                pickupTime={food.expires_at ? new Date(food.expires_at).toLocaleString() : null}
+                status="pickup_today"
+                onAddClick={() => handleAddToCart(food)}
+                onCardClick={handleCardClick}
+              />
+            ))
+          )}
         </HorizontalScrollSection>
 
         {/* How It Works */}
