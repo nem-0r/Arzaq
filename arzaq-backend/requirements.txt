@@ -6,6 +6,7 @@ python-multipart==0.0.6
 # Pydantic (required for FastAPI)
 pydantic==2.5.3
 pydantic-settings==2.1.0
+email-validator==2.1.0
 
 # Database
 sqlalchemy==2.0.25
@@ -37,4 +38,3 @@ python-dateutil==2.8.2
 
 # File handling & validation
 aiofiles==23.2.1
-
