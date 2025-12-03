@@ -38,6 +38,15 @@ const RegisterForm = () => {
     },
     role: {
       required: true
+    },
+    address: {
+      required: false, // Only required for restaurant role, checked manually
+      minLength: 5,
+      maxLength: 255
+    },
+    phone: {
+      required: false,
+      minLength: 10
     }
   };
 
@@ -57,7 +66,9 @@ const RegisterForm = () => {
       email: '',
       password: '',
       confirmPassword: '',
-      role: 'client' // Default role
+      role: 'client', // Default role
+      address: '',
+      phone: ''
     },
     validationRules
   );
@@ -67,13 +78,29 @@ const RegisterForm = () => {
 
   // Submit handler
   const onSubmit = async (formValues) => {
+    // Validate address for restaurant role
+    if (formValues.role === 'restaurant' && !formValues.address.trim()) {
+      setFieldError('address', 'Address is required for restaurants');
+      return;
+    }
+
     try {
-      await register({
+      const registrationData = {
         fullName: formValues.fullName,
         email: formValues.email,
         password: formValues.password,
         role: formValues.role
-      });
+      };
+
+      // Add restaurant-specific fields
+      if (formValues.role === 'restaurant') {
+        registrationData.address = formValues.address.trim();
+        if (formValues.phone.trim()) {
+          registrationData.phone = formValues.phone.trim();
+        }
+      }
+
+      await register(registrationData);
       alert(t('alert_register_success'));
       navigate('/login');
     } catch (error) {
@@ -91,19 +118,17 @@ const RegisterForm = () => {
   };
 
   // Google register handler
-  const handleGoogleSuccess = async (googleToken) => {
-    setGoogleError(null);
-    try {
-      // Use the selected role from the form
-      await registerWithGoogle(googleToken, values.role || 'client');
+  const handleGoogleClick = () => {
+    // Store the selected role before Google OAuth redirect
+    // This will be used after Supabase redirects back
+    const { setRegistrationRole } = useAuth();
+    setRegistrationRole(values.role || 'client');
 
-      alert('Успешная регистрация через Google!');
-      navigate('/');
-    } catch (error) {
-      if (error.message === 'error_google_user_exists') {
-        setGoogleError('Этот аккаунт Google уже зарегистрирован. Попробуйте войти.');
-      } else {
-        setGoogleError('Ошибка регистрации через Google. Попробуйте снова.');
+    // For restaurant role, also store address if provided
+    if (values.role === 'restaurant' && values.address) {
+      localStorage.setItem('pending_restaurant_address', values.address);
+      if (values.phone) {
+        localStorage.setItem('pending_restaurant_phone', values.phone);
       }
     }
   };
@@ -207,6 +232,50 @@ const RegisterForm = () => {
         )}
       </div>
 
+      {/* Restaurant-specific fields */}
+      {values.role === 'restaurant' && (
+        <>
+          <div className={styles.formGroup}>
+            <label htmlFor="address">Restaurant Address *</label>
+            <input
+              type="text"
+              id="address"
+              name="address"
+              value={values.address}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              placeholder="Enter your restaurant address"
+              disabled={isSubmitting}
+              className={touched.address && errors.address ? styles.inputError : ''}
+            />
+            {touched.address && errors.address && (
+              <span className={styles.errorMessage}>{errors.address}</span>
+            )}
+            <small style={{ color: '#6b7280', fontSize: '0.875rem', marginTop: '4px', display: 'block' }}>
+              This will be used to show your restaurant on the map
+            </small>
+          </div>
+
+          <div className={styles.formGroup}>
+            <label htmlFor="phone">Phone Number (Optional)</label>
+            <input
+              type="tel"
+              id="phone"
+              name="phone"
+              value={values.phone}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              placeholder="+7 (XXX) XXX-XX-XX"
+              disabled={isSubmitting}
+              className={touched.phone && errors.phone ? styles.inputError : ''}
+            />
+            {touched.phone && errors.phone && (
+              <span className={styles.errorMessage}>{errors.phone}</span>
+            )}
+          </div>
+        </>
+      )}
+
       <button
         type="submit"
         className={styles.btnPrimary}
@@ -218,10 +287,11 @@ const RegisterForm = () => {
       <AuthDivider />
 
       <GoogleAuthButton
-        onSuccess={handleGoogleSuccess}
+        onBeforeAuth={handleGoogleClick}
         onError={handleGoogleError}
         buttonText="Зарегистрироваться через Google"
         mode="register"
+        role={values.role}
       />
 
       {googleError && (

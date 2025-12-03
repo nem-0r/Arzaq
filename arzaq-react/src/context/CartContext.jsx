@@ -124,9 +124,11 @@ export const CartProvider = ({ children }) => {
     0
   );
 
-  const deliveryFee = subtotal > 0 ? 2.5 : 0;
-  const tax = subtotal * 0.1; // 10% tax
-  const total = subtotal + deliveryFee + tax;
+  // Self-pickup: no delivery fee
+  const deliveryFee = 0;
+  // Tax (НДС) is already included in prices in Kazakhstan
+  const tax = 0;
+  const total = subtotal;
 
   // Group items by restaurant
   const itemsByRestaurant = cartItems.reduce((acc, item) => {

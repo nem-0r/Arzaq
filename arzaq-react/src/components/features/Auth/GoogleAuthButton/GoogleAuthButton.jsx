@@ -1,44 +1,49 @@
 import React, { useState } from 'react';
-import { useGoogleLogin } from '@react-oauth/google';
+import { signInWithGoogle } from '../../../../lib/supabase';
 import styles from './GoogleAuthButton.module.css';
 
 const GoogleAuthButton = ({
-  onSuccess,
+  onBeforeAuth,
   onError,
   buttonText = 'Продолжить с Google',
-  mode = 'login' // 'login' or 'register'
+  mode = 'login', // 'login' or 'register'
+  role = 'client' // 'client' or 'restaurant' - for register mode
 }) => {
   const [isLoading, setIsLoading] = useState(false);
 
-  const googleLogin = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      setIsLoading(true);
-      try {
-        // Pass the access token to the parent component
-        await onSuccess(tokenResponse.access_token, mode);
-      } catch (error) {
-        console.error('Google login error:', error);
-        if (onError) {
-          onError(error);
-        }
-      } finally {
-        setIsLoading(false);
+  const handleGoogleLogin = async () => {
+    setIsLoading(true);
+    try {
+      // Call onBeforeAuth callback if provided (to store role, etc.)
+      if (onBeforeAuth) {
+        onBeforeAuth();
       }
-    },
-    onError: (error) => {
+
+      // For register mode, store role in localStorage before OAuth redirect
+      if (mode === 'register') {
+        localStorage.setItem('pending_role', role);
+      }
+
+      // Sign in with Google via Supabase
+      await signInWithGoogle();
+
+      // Note: Supabase will redirect to the OAuth provider
+      // After successful auth, user will be redirected back
+      // The onAuthStateChange listener in AuthContext will handle the session
+    } catch (error) {
       console.error('Google OAuth error:', error);
+      setIsLoading(false);
       if (onError) {
         onError(error);
       }
-    },
-    flow: 'implicit', // Use implicit flow for simpler token handling
-  });
+    }
+  };
 
   return (
     <button
       type="button"
       className={styles.googleButton}
-      onClick={() => googleLogin()}
+      onClick={handleGoogleLogin}
       disabled={isLoading}
     >
       {isLoading ? (

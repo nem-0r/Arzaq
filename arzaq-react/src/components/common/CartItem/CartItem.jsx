@@ -1,11 +1,12 @@
 // src/components/common/CartItem/CartItem.jsx
 import React from 'react';
 import { useTranslation } from '../../../hooks/useTranslation';
+import { formatPrice } from '../../../utils/currency';
 import styles from './CartItem.module.css';
 
 const CartItem = ({ item, onIncrease, onDecrease, onRemove }) => {
   const { t } = useTranslation();
-  const itemTotal = (item.price * item.quantity).toFixed(2);
+  const itemTotal = item.price * item.quantity;
 
   return (
     <div className={styles.cartItem}>
@@ -17,9 +18,9 @@ const CartItem = ({ item, onIncrease, onDecrease, onRemove }) => {
         <h3 className={styles.title}>{item.title}</h3>
         <p className={styles.restaurant}>{item.restaurant}</p>
         <div className={styles.priceRow}>
-          <span className={styles.price}>${item.price}</span>
+          <span className={styles.price}>{formatPrice(item.price)}</span>
           {item.oldPrice && (
-            <span className={styles.oldPrice}>${item.oldPrice}</span>
+            <span className={styles.oldPrice}>{formatPrice(item.oldPrice)}</span>
           )}
         </div>
       </div>
@@ -59,7 +60,7 @@ const CartItem = ({ item, onIncrease, onDecrease, onRemove }) => {
           </button>
         </div>
 
-        <div className={styles.totalPrice}>${itemTotal}</div>
+        <div className={styles.totalPrice}>{formatPrice(itemTotal)}</div>
 
         <button
           className={styles.removeBtn}

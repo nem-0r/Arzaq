@@ -63,7 +63,7 @@ const HomePage = () => {
   };
 
   const handleCardClick = (restaurantId) => {
-    navigate(`/restaurants/${restaurantId}`);
+    navigate(`/restaurant/${restaurantId}`);
   };
 
   return (
@@ -146,6 +146,7 @@ const HomePage = () => {
                 oldPrice={food.old_price}
                 discount={food.discount}
                 portions={food.quantity}
+                isAvailable={food.is_available !== undefined ? food.is_available : true}
                 pickupTime={food.expires_at ? new Date(food.expires_at).toLocaleString() : null}
                 status="pickup_today"
                 onAddClick={() => handleAddToCart(food)}

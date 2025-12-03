@@ -160,6 +160,7 @@ const RestaurantDetailsPage = () => {
                     oldPrice={food.oldPrice}
                     discount={food.discount}
                     portions={food.quantity}
+                    isAvailable={food.is_available !== undefined ? food.is_available : true}
                     pickupTime={food.expiresAt ? new Date(food.expiresAt).toLocaleString() : null}
                     onAddClick={() => handleAddToCart(food)}
                   />

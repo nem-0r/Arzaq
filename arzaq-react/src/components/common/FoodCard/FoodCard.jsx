@@ -8,6 +8,7 @@ import {
   IoRestaurantOutline,
   IoFlame
 } from 'react-icons/io5';
+import { formatPrice, calculateSavings } from '../../../utils/currency';
 import styles from './FoodCard.module.css';
 
 const FoodCard = ({
@@ -25,7 +26,8 @@ const FoodCard = ({
   status = 'pickup_today',
   pickupTime,
   onAddClick,
-  onCardClick = null          // Optional click handler for card navigation
+  onCardClick = null,          // Optional click handler for card navigation
+  isAvailable = true           // NEW: Availability status
 }) => {
   // Status badge configuration
   const statusConfig = {
@@ -42,6 +44,7 @@ const FoodCard = ({
   const currentStatus = statusConfig[status] || statusConfig.pickup_today;
   const isLowStock = portions && portions <= 3;
   const isExpiringSoon = expiresInMinutes && expiresInMinutes <= 60;
+  const isOutOfStock = portions !== null && portions <= 0;
 
   const handleCardClick = () => {
     if (onCardClick && restaurantId) {
@@ -58,11 +61,11 @@ const FoodCard = ({
 
   return (
     <article
-      className={styles.card}
+      className={`${styles.card} ${(isOutOfStock || !isAvailable) ? styles.cardUnavailable : ''}`}
       onClick={handleCardClick}
       style={{ cursor: onCardClick && restaurantId ? 'pointer' : 'default' }}
       role="article"
-      aria-label={`${title} from ${restaurant}`}
+      aria-label={`${title} from ${restaurant}${isOutOfStock || !isAvailable ? ' - Out of stock' : ''}`}
     >
       <div className={styles.imageContainer}>
         <img
@@ -71,6 +74,13 @@ const FoodCard = ({
           loading="lazy"
           className={styles.image}
         />
+
+        {/* Unavailable Badge */}
+        {(isOutOfStock || !isAvailable) && (
+          <div className={styles.unavailableBadge}>
+            Нет в наличии
+          </div>
+        )}
 
         {/* Status Badge */}
         <span
@@ -153,20 +163,20 @@ const FoodCard = ({
           <div className={styles.priceContainer}>
             <span
               className={styles.price}
-              aria-label={`Current price: ${price} dollars`}
+              aria-label={`Current price: ${price} tenge`}
             >
-              ${price}
+              {formatPrice(price)}
             </span>
             {oldPrice && (
               <>
                 <span
                   className={styles.oldPrice}
-                  aria-label={`Original price: ${oldPrice} dollars`}
+                  aria-label={`Original price: ${oldPrice} tenge`}
                 >
-                  ${oldPrice}
+                  {formatPrice(oldPrice)}
                 </span>
                 <span className={styles.savings}>
-                  Save ${(oldPrice - price).toFixed(2)}
+                  Save {formatPrice(calculateSavings(oldPrice, price))}
                 </span>
               </>
             )}
@@ -174,10 +184,11 @@ const FoodCard = ({
           <button
             className={styles.rescueBtn}
             onClick={handleRescueClick}
-            aria-label={`Rescue ${title} from ${restaurant} for ${price} dollars`}
+            disabled={isOutOfStock || !isAvailable}
+            aria-label={`Rescue ${title} from ${restaurant} for ${price} tenge`}
           >
             <IoLeafOutline size={18} aria-hidden="true" />
-            <span>Rescue</span>
+            <span>{isOutOfStock || !isAvailable ? 'Unavailable' : 'Rescue'}</span>
           </button>
         </div>
       </div>

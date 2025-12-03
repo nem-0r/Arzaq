@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import { useTranslation } from '../../hooks/useTranslation';
+import { formatPrice } from '../../utils/currency';
 import Header from '../../components/layout/Header/Header';
 import BottomNav from '../../components/layout/BottomNav/BottomNav';
 import CartItem from '../../components/common/CartItem/CartItem';
@@ -127,24 +128,24 @@ const CartPage = () => {
 
             <div className={styles.summaryRow}>
               <span className={styles.summaryLabel}>{t('cart_subtotal')}</span>
-              <span className={styles.summaryValue}>${subtotal.toFixed(2)}</span>
+              <span className={styles.summaryValue}>{formatPrice(subtotal)}</span>
             </div>
 
             <div className={styles.summaryRow}>
               <span className={styles.summaryLabel}>{t('cart_delivery_fee')}</span>
-              <span className={styles.summaryValue}>${deliveryFee.toFixed(2)}</span>
+              <span className={styles.summaryValue}>{formatPrice(deliveryFee)}</span>
             </div>
 
             <div className={styles.summaryRow}>
               <span className={styles.summaryLabel}>{t('cart_tax')}</span>
-              <span className={styles.summaryValue}>${tax.toFixed(2)}</span>
+              <span className={styles.summaryValue}>{formatPrice(tax)}</span>
             </div>
 
             <div className={styles.divider}></div>
 
             <div className={styles.summaryRow}>
               <span className={styles.totalLabel}>{t('cart_total')}</span>
-              <span className={styles.totalValue}>${total.toFixed(2)}</span>
+              <span className={styles.totalValue}>{formatPrice(total)}</span>
             </div>
           </div>
         </div>
@@ -153,7 +154,7 @@ const CartPage = () => {
       {/* Sticky Checkout Button */}
       <div className={styles.checkoutFooter}>
         <button className={styles.checkoutBtn} onClick={handleCheckout}>
-          {t('cart_checkout')} • ${total.toFixed(2)}
+          {t('cart_checkout')} • {formatPrice(total)}
         </button>
       </div>
 
@@ -168,7 +169,7 @@ const CartPage = () => {
 
                 <div className={styles.modalTotal}>
                   <span>{t('cart_total')}</span>
-                  <span className={styles.modalTotalAmount}>${total.toFixed(2)}</span>
+                  <span className={styles.modalTotalAmount}>{formatPrice(total)}</span>
                 </div>
 
                 <div className={styles.modalActions}>

@@ -197,7 +197,6 @@ const LoginForm = () => {
       <AuthDivider />
 
       <GoogleAuthButton
-        onSuccess={handleGoogleSuccess}
         onError={handleGoogleError}
         buttonText="Войти через Google"
         mode="login"

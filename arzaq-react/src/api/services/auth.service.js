@@ -174,6 +174,32 @@ const authService = {
       throw error;
     }
   },
+
+  /**
+   * Authenticate with Supabase OAuth
+   * Send Supabase user data to backend for verification and user creation/login
+   * @param {Object} supabaseData - { email, full_name, google_id, supabase_token, role }
+   * @returns {Promise} { user, token }
+   */
+  async supabaseAuth(supabaseData) {
+    try {
+      const response = await apiClient.post('/api/auth/supabase', supabaseData);
+
+      const { user, token } = response.data;
+
+      // Save JWT token from our backend
+      if (token) {
+        localStorage.setItem('authToken', token);
+      }
+
+      return { user, token };
+    } catch (error) {
+      if (error.status === 409) {
+        throw new Error('error_user_exists');
+      }
+      throw error;
+    }
+  },
 };
 
 export default authService;
