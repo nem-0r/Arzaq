@@ -8,22 +8,36 @@ import { API_ENDPOINTS } from '../config';
 const authService = {
   /**
    * Регистрация нового пользователя
-   * @param {Object} userData - {fullName, email, password}
+   * @param {Object} userData - {fullName, email, password, role, address?, phone?, description?}
    * @returns {Promise} User data
    */
   async register(userData) {
     try {
-      // Бэкенд ожидает full_name, а не fullName
+      // Prepare request data with proper field mapping
       const requestData = {
         full_name: userData.fullName,
         email: userData.email,
         password: userData.password,
+        role: userData.role || 'client', // Default to client if not specified
       };
+
+      // Add restaurant-specific fields if provided
+      if (userData.role === 'restaurant') {
+        if (userData.address) {
+          requestData.address = userData.address;
+        }
+        if (userData.phone) {
+          requestData.phone = userData.phone;
+        }
+        if (userData.description) {
+          requestData.description = userData.description;
+        }
+      }
 
       const response = await apiClient.post(API_ENDPOINTS.AUTH.REGISTER, requestData);
       return response.data;
     } catch (error) {
-      // Обрабатываем специфичные ошибки бэкенда
+      // Handle specific backend errors
       if (error.status === 409) {
         throw new Error('error_email_exists');
       }
@@ -178,12 +192,30 @@ const authService = {
   /**
    * Authenticate with Supabase OAuth
    * Send Supabase user data to backend for verification and user creation/login
-   * @param {Object} supabaseData - { email, full_name, google_id, supabase_token, role }
+   * @param {Object} supabaseData - { email, full_name, google_id, supabase_token, role, address?, phone? }
    * @returns {Promise} { user, token }
    */
   async supabaseAuth(supabaseData) {
     try {
-      const response = await apiClient.post('/api/auth/supabase', supabaseData);
+      const requestData = {
+        email: supabaseData.email,
+        full_name: supabaseData.full_name,
+        google_id: supabaseData.google_id,
+        supabase_token: supabaseData.supabase_token,
+        role: supabaseData.role || 'client',
+      };
+
+      // Add restaurant-specific fields if role is restaurant
+      if (supabaseData.role === 'restaurant') {
+        if (supabaseData.address) {
+          requestData.address = supabaseData.address;
+        }
+        if (supabaseData.phone) {
+          requestData.phone = supabaseData.phone;
+        }
+      }
+
+      const response = await apiClient.post('/api/auth/supabase', requestData);
 
       const { user, token } = response.data;
 

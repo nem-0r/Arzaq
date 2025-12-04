@@ -382,3 +382,465 @@
   font-size: 14px;
   margin-top: 0;
 }
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+
+/* Desktop Large (1440px and above) */
+@media (min-width: 1440px) {
+  .heroSection {
+    padding: 56px 32px;
+    margin-bottom: 40px;
+  }
+
+  .heroTitle {
+    font-size: 48px;
+  }
+
+  .heroSubtitle {
+    font-size: 20px;
+  }
+
+  .stepsGrid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+  }
+}
+
+/* Desktop (1024px - 1439px) */
+@media (max-width: 1439px) and (min-width: 1024px) {
+  .heroSection {
+    padding: 48px 28px;
+  }
+
+  .missionStats {
+    gap: 20px;
+  }
+
+  .stepsGrid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+}
+
+/* Tablet Landscape (769px - 1023px) */
+@media (max-width: 1023px) and (min-width: 769px) {
+  .heroSection {
+    padding: 36px 20px;
+    margin-bottom: 28px;
+  }
+
+  .heroIcon {
+    font-size: 48px;
+  }
+
+  .heroTitle {
+    font-size: 36px;
+  }
+
+  .heroSubtitle {
+    font-size: 16px;
+  }
+
+  .ctaButton {
+    padding: 14px 28px;
+    font-size: 16px;
+  }
+
+  .missionStats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .statIcon {
+    font-size: 28px;
+  }
+
+  .statValue {
+    font-size: 20px;
+  }
+
+  .stepsGrid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  .stepCard {
+    padding: 24px 20px;
+  }
+
+  .stepNumber {
+    width: 48px;
+    height: 48px;
+    font-size: 20px;
+  }
+
+  .howItWorks {
+    padding: 56px 20px;
+  }
+}
+
+/* Tablet Portrait (481px - 768px) */
+@media (max-width: 768px) and (min-width: 481px) {
+  .heroSection {
+    padding: 32px 16px;
+    margin-bottom: 24px;
+  }
+
+  .heroIcon {
+    font-size: 42px;
+  }
+
+  .heroTitle {
+    font-size: 32px;
+  }
+
+  .heroSubtitle {
+    font-size: 15px;
+  }
+
+  .ctaButton {
+    padding: 12px 24px;
+    font-size: 15px;
+    gap: 8px;
+  }
+
+  .missionStats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .statItem {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .statIcon {
+    font-size: 24px;
+  }
+
+  .statValue {
+    font-size: 18px;
+  }
+
+  .statLabel {
+    font-size: 12px;
+  }
+
+  .impactSection {
+    margin-bottom: 24px;
+  }
+
+  .howItWorks {
+    padding: 48px 16px;
+  }
+
+  .sectionTitle {
+    font-size: 26px;
+    margin-bottom: 28px;
+  }
+
+  .stepsGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .stepCard {
+    padding: 20px 16px;
+  }
+
+  .stepCard h3 {
+    font-size: 16px;
+  }
+
+  .stepCard p {
+    font-size: 13px;
+  }
+}
+
+/* Mobile (321px - 480px) */
+@media (max-width: 480px) {
+  .heroSection {
+    padding: 24px 12px;
+    margin-bottom: 20px;
+    border-radius: 12px;
+  }
+
+  .heroIcon {
+    font-size: 36px;
+    margin-bottom: 12px;
+  }
+
+  .heroTitle {
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+
+  .heroSubtitle {
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+
+  .ctaButton {
+    width: 100%;
+    padding: 14px 20px;
+    font-size: 15px;
+    justify-content: center;
+  }
+
+  .missionStats {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .statItem {
+    padding: 14px;
+  }
+
+  .statIcon {
+    font-size: 28px;
+  }
+
+  .statValue {
+    font-size: 20px;
+  }
+
+  .statLabel {
+    font-size: 12px;
+  }
+
+  .impactSection {
+    margin-bottom: 20px;
+  }
+
+  .howItWorks {
+    padding: 40px 12px;
+  }
+
+  .sectionTitle {
+    font-size: 22px;
+    margin-bottom: 24px;
+  }
+
+  .stepsGrid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .stepCard {
+    padding: 20px 16px;
+  }
+
+  .stepNumber {
+    width: 42px;
+    height: 42px;
+    font-size: 18px;
+  }
+
+  .stepCard h3 {
+    font-size: 16px;
+    margin: 12px 0 8px;
+  }
+
+  .stepCard p {
+    font-size: 13px;
+  }
+
+  .loadingSection,
+  .errorSection,
+  .emptySection {
+    padding: 36px 16px;
+    min-height: 180px;
+  }
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+  }
+
+  .toast {
+    bottom: 80px;
+    left: 12px;
+    right: 12px;
+    width: auto;
+  }
+}
+
+/* Extra Small Mobile (320px and below) */
+@media (max-width: 360px) {
+  .heroSection {
+    padding: 20px 10px;
+  }
+
+  .heroIcon {
+    font-size: 32px;
+  }
+
+  .heroTitle {
+    font-size: 20px;
+  }
+
+  .heroSubtitle {
+    font-size: 13px;
+  }
+
+  .ctaButton {
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+
+  .statValue {
+    font-size: 18px;
+  }
+
+  .statLabel {
+    font-size: 11px;
+  }
+
+  .howItWorks {
+    padding: 32px 10px;
+  }
+
+  .sectionTitle {
+    font-size: 20px;
+  }
+
+  .stepCard {
+    padding: 16px 12px;
+  }
+
+  .stepNumber {
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+  }
+
+  .stepCard h3 {
+    font-size: 15px;
+  }
+
+  .stepCard p {
+    font-size: 12px;
+  }
+}
+
+/* Landscape orientation on mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+  .heroSection {
+    padding: 20px 16px;
+    margin-bottom: 16px;
+  }
+
+  .heroIcon {
+    font-size: 32px;
+    margin-bottom: 8px;
+  }
+
+  .heroTitle {
+    font-size: 24px;
+    margin-bottom: 8px;
+  }
+
+  .heroSubtitle {
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+
+  .missionStats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .statItem {
+    padding: 10px;
+  }
+
+  .howItWorks {
+    padding: 32px 16px;
+  }
+
+  .stepsGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Accessibility - Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .ctaButton,
+  .retryBtn,
+  .spinner {
+    transition: none;
+    animation: none;
+  }
+
+  .ctaButton:hover,
+  .retryBtn:hover {
+    transform: none;
+  }
+
+  .ctaButton:active,
+  .retryBtn:active {
+    transform: none;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .heroSection {
+    border: 2px solid rgba(255, 255, 255, 0.5);
+  }
+
+  .statItem {
+    border-width: 2px;
+  }
+
+  .stepCard {
+    border: 2px solid rgba(157, 184, 150, 0.4);
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .heroSection {
+    background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+  }
+
+  .ctaButton {
+    background: rgba(255, 255, 255, 0.95);
+    color: #16a34a;
+  }
+
+  .stepCard {
+    background: #1a1a1a;
+    border-color: rgba(157, 184, 150, 0.2);
+  }
+
+  .errorSection {
+    background: rgba(239, 68, 68, 0.1);
+  }
+
+  .emptySection {
+    background: rgba(157, 184, 150, 0.1);
+  }
+}
+
+/* Print styles */
+@media print {
+  .heroSection {
+    page-break-inside: avoid;
+  }
+
+  .ctaButton,
+  .toast {
+    display: none;
+  }
+
+  .howItWorks {
+    page-break-inside: avoid;
+  }
+
+  .stepCard {
+    page-break-inside: avoid;
+  }
+}
