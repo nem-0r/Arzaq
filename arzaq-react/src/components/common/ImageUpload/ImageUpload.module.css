@@ -1,0 +1,121 @@
+/* src/components/common/ImageUpload/ImageUpload.module.css */
+
+.container {
+  width: 100%;
+}
+
+.uploadArea {
+  border: 2px dashed #d1d5db;
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: #f9fafb;
+}
+
+.uploadArea:hover {
+  border-color: #22c55e;
+  background-color: #f0fdf4;
+}
+
+.uploadArea.dragging {
+  border-color: #22c55e;
+  background-color: #dcfce7;
+}
+
+.uploadArea.error {
+  border-color: #ef4444;
+  background-color: #fef2f2;
+}
+
+.uploadIcon {
+  width: 48px;
+  height: 48px;
+  color: #9ca3af;
+  margin-bottom: 1rem;
+}
+
+.uploadText {
+  font-size: 1rem;
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.uploadText strong {
+  color: #22c55e;
+}
+
+.uploadHint {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.fileInput {
+  display: none;
+}
+
+.previewContainer {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.previewImage {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.removeButton {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #ef4444;
+  font-size: 28px;
+}
+
+.removeButton:hover {
+  background-color: white;
+  transform: scale(1.1);
+}
+
+.errorMessage {
+  color: #ef4444;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .uploadArea {
+    padding: 1.5rem;
+  }
+
+  .uploadIcon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .uploadText {
+    font-size: 0.9rem;
+  }
+
+  .uploadHint {
+    font-size: 0.8rem;
+  }
+}

@@ -1,0 +1,149 @@
+.header {
+  background: var(--primary-green);
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px var(--shadow);
+}
+
+.logoLink {
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  transition: transform var(--transition-fast);
+}
+
+.logoLink:hover {
+  transform: scale(1.02);
+}
+
+.logoLink:active {
+  transform: scale(0.98);
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--background-white);
+  margin: 0;
+  cursor: pointer;
+}
+
+/* Desktop */
+@media (min-width: 1024px) {
+  .header {
+    padding: 20px 40px;
+    height: 70px;
+  }
+
+  .logo {
+    font-size: 28px;
+  }
+}
+
+/* Tablets */
+@media (max-width: 1023px) and (min-width: 769px) {
+  .header {
+    padding: 16px 24px;
+    height: 70px;
+  }
+
+  .logo {
+    font-size: 24px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .header {
+    padding: 12px 16px;
+    height: 60px;
+    position: fixed;
+    width: 100%;
+  }
+
+  .logo {
+    font-size: 22px;
+    letter-spacing: 1.5px;
+  }
+}
+
+/* Small mobile */
+@media (max-width: 480px) {
+  .header {
+    padding: 10px 12px;
+    height: 56px;
+  }
+
+  .logo {
+    font-size: 18px;
+    letter-spacing: 1px;
+  }
+}
+
+/* Extra small mobile */
+@media (max-width: 360px) {
+  .header {
+    padding: 8px 10px;
+  }
+
+  .logo {
+    font-size: 16px;
+  }
+}
+
+/* Landscape orientation on mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+  .header {
+    padding: 8px 16px;
+    height: 50px;
+  }
+
+  .logo {
+    font-size: 18px;
+  }
+}
+
+/* Accessibility - Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .logoLink {
+    transition: none;
+  }
+
+  .logoLink:hover {
+    transform: none;
+  }
+
+  .logoLink:active {
+    transform: none;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .header {
+    border-bottom: 2px solid rgba(255, 255, 255, 0.5);
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .header {
+    background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+  }
+}
+
+/* Print */
+@media print {
+  .header {
+    position: static;
+    box-shadow: none;
+    padding: 10px;
+  }
+}

@@ -1,0 +1,41 @@
+.languageSwitcher {
+  display: flex;
+  gap: 5px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  padding: 4px;
+}
+
+.langBtn {
+  background: transparent;
+  border: none;
+  color: var(--background-white);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  font-family: 'Poppins', sans-serif;
+}
+
+.langBtn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.langBtn.active {
+  background: var(--accent-orange);
+  color: var(--background-white);
+  font-weight: 600;
+}
+
+@media (max-width: 480px) {
+  .languageSwitcher {
+    padding: 3px;
+  }
+  
+  .langBtn {
+    font-size: 12px;
+    padding: 5px 10px;
+  }
+}

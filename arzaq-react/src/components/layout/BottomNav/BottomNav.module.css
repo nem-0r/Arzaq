@@ -1,0 +1,311 @@
+.bottomNav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: var(--color-bg-primary);
+  display: flex;
+  justify-content: space-around;
+  padding: var(--space-2) 0;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  z-index: var(--z-fixed);
+  border-top: 1px solid var(--color-border-primary);
+}
+
+.navItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  padding: var(--space-2) clamp(10px, 3vw, 20px);
+  text-decoration: none;
+  color: var(--color-text-secondary);
+  transition: all var(--transition-fast);
+  flex: 1;
+  max-width: 120px;
+  min-height: var(--size-touch-comfortable); /* 48px for comfortable touch */
+  border-radius: var(--radius-md);
+}
+
+.navItem span {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  line-height: 1;
+}
+
+.navItem svg {
+  transition: fill var(--transition-normal), stroke var(--transition-normal);
+}
+
+/* Active state - filled icon with background */
+.navItem.active {
+  color: var(--color-primary-700);
+  background: var(--color-primary-50);
+}
+
+.navItem.active svg {
+  fill: currentColor;
+  stroke: currentColor;
+}
+
+/* Hover state */
+.navItem:hover {
+  color: var(--color-primary-600);
+  background: var(--color-gray-50);
+}
+
+/* Focus visible - IMPROVED for accessibility */
+.navItem:focus-visible {
+  outline: 3px solid var(--color-border-focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-md);
+}
+
+/* Icon wrapper for badge positioning */
+.iconWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--size-icon-lg); /* 32px */
+  height: var(--size-icon-lg);
+}
+
+/* Badge styles - IMPROVED with design tokens */
+.badge {
+  position: absolute;
+  top: -4px;
+  right: -6px;
+  min-width: 18px;
+  height: 18px;
+  background: var(--color-error-500);
+  color: var(--color-white);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  padding: 0 var(--space-1);
+  box-shadow: var(--shadow-sm);
+  animation: badgePulse var(--duration-slow) ease-in-out infinite;
+  border: 2px solid var(--color-bg-primary);
+}
+
+@keyframes badgePulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+/* Ensure badge is visible on active state */
+.navItem.active .badge {
+  background: var(--color-error-500);
+  border-color: var(--color-primary-50);
+}
+
+/* Responsive Design */
+
+/* Large tablets and small desktops */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .bottomNav {
+    padding: var(--space-3) 0;
+  }
+
+  .navItem {
+    max-width: 140px;
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .navItem span {
+    font-size: var(--font-size-sm);
+  }
+}
+
+/* Desktop - hide bottom nav, user should use main navigation */
+@media (min-width: 1025px) {
+  .bottomNav {
+    display: none;
+  }
+}
+
+/* Tablets */
+@media (max-width: 768px) and (min-width: 481px) {
+  .bottomNav {
+    padding: var(--space-2) 0;
+  }
+
+  .navItem {
+    max-width: 100px;
+    gap: 4px;
+  }
+
+  .navItem span {
+    font-size: 11px;
+  }
+
+  .iconWrapper {
+    width: 28px;
+    height: 28px;
+  }
+
+  .badge {
+    min-width: 16px;
+    height: 16px;
+    font-size: 10px;
+    top: -3px;
+    right: -5px;
+  }
+}
+
+/* Mobile phones */
+@media (max-width: 480px) {
+  .bottomNav {
+    padding: 8px 0;
+  }
+
+  .navItem {
+    max-width: 80px;
+    padding: 8px 4px;
+    gap: 2px;
+    min-height: 56px;
+  }
+
+  .navItem span {
+    font-size: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+
+  .iconWrapper {
+    width: 24px;
+    height: 24px;
+  }
+
+  .badge {
+    min-width: 14px;
+    height: 14px;
+    font-size: 9px;
+    top: -2px;
+    right: -4px;
+    padding: 0 3px;
+  }
+}
+
+/* Extra small mobile phones */
+@media (max-width: 360px) {
+  .bottomNav {
+    padding: 6px 0;
+  }
+
+  .navItem {
+    max-width: 70px;
+    padding: 6px 2px;
+    gap: 2px;
+  }
+
+  .navItem span {
+    font-size: 9px;
+  }
+
+  .iconWrapper {
+    width: 22px;
+    height: 22px;
+  }
+}
+
+/* Landscape orientation on mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+  .bottomNav {
+    padding: 4px 0;
+  }
+
+  .navItem {
+    min-height: 40px;
+    padding: 4px 8px;
+  }
+
+  .navItem span {
+    display: none;
+  }
+
+  .iconWrapper {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+/* High DPI screens - sharper icons */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .navItem svg {
+    transform: translateZ(0);
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+/* Accessibility - Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .navItem,
+  .navItem svg,
+  .badge {
+    transition: none;
+    animation: none;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .bottomNav {
+    border-top-width: 2px;
+  }
+
+  .navItem {
+    border: 1px solid transparent;
+  }
+
+  .navItem.active {
+    border-color: currentColor;
+  }
+
+  .badge {
+    border-width: 3px;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .bottomNav {
+    background: #1a1a1a;
+    border-top-color: #333;
+  }
+
+  .navItem {
+    color: #9ca3af;
+  }
+
+  .navItem:hover {
+    background: #2a2a2a;
+  }
+
+  .navItem.active {
+    background: #2a2a2a;
+    color: #22c55e;
+  }
+
+  .badge {
+    border-color: #1a1a1a;
+  }
+}
+
+/* Print - hide bottom nav */
+@media print {
+  .bottomNav {
+    display: none;
+  }
+}
