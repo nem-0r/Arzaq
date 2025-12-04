@@ -284,15 +284,36 @@ const RegisterForm = () => {
         {isSubmitting ? 'Loading...' : t('register_button')}
       </button>
 
-      <AuthDivider />
+      {/* Google OAuth - only for clients */}
+      {values.role === 'client' && (
+        <>
+          <AuthDivider />
+          <GoogleAuthButton
+            onBeforeAuth={handleGoogleClick}
+            onError={handleGoogleError}
+            buttonText="Зарегистрироваться через Google"
+            mode="register"
+            role="client"
+          />
+        </>
+      )}
 
-      <GoogleAuthButton
-        onBeforeAuth={handleGoogleClick}
-        onError={handleGoogleError}
-        buttonText="Зарегистрироваться через Google"
-        mode="register"
-        role={values.role}
-      />
+      {/* Restaurant info message */}
+      {values.role === 'restaurant' && (
+        <div className={styles.infoBox} style={{
+          marginTop: '20px',
+          padding: '12px 16px',
+          backgroundColor: '#FFF3CD',
+          border: '1px solid #FFC107',
+          borderRadius: '8px',
+          color: '#856404',
+          fontSize: '14px',
+          lineHeight: '1.5'
+        }}>
+          <strong>ℹ️ Для ресторанов:</strong> Регистрация через Google недоступна.
+          Пожалуйста, зарегистрируйтесь через email с указанием юридической информации о вашем ресторане.
+        </div>
+      )}
 
       {googleError && (
         <div className={styles.errorMessage} style={{ textAlign: 'center', marginTop: '10px' }}>
