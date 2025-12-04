@@ -1,0 +1,62 @@
+/* SkipLink Component - Accessibility Navigation */
+
+.skipLink {
+  /* Visually hidden by default */
+  position: absolute;
+  top: -100%;
+  left: var(--space-4);
+  z-index: var(--z-tooltip);
+
+  /* Styling when visible (on focus) */
+  display: inline-block;
+  padding: var(--space-3) var(--space-6);
+  background: var(--color-primary-700);
+  color: var(--color-white);
+  text-decoration: none;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+
+  /* Accessibility */
+  min-height: var(--size-touch-min); /* 44px */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* Transition for smooth appearance */
+  transition: top var(--transition-fast);
+}
+
+/* Show on keyboard focus */
+.skipLink:focus,
+.skipLink:focus-visible {
+  top: var(--space-4);
+  outline: 3px solid var(--color-border-focus);
+  outline-offset: 2px;
+}
+
+/* Hover state */
+.skipLink:hover {
+  background: var(--color-primary-800);
+  box-shadow: var(--shadow-xl);
+}
+
+/* Active state */
+.skipLink:active {
+  transform: translateY(1px);
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .skipLink {
+    border: 2px solid var(--color-white);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .skipLink {
+    transition: none;
+  }
+}

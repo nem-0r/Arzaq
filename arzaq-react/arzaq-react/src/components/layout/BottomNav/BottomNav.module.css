@@ -1,0 +1,109 @@
+.bottomNav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: var(--color-bg-primary);
+  display: flex;
+  justify-content: space-around;
+  padding: var(--space-2) 0;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  z-index: var(--z-fixed);
+  border-top: 1px solid var(--color-border-primary);
+}
+
+.navItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  padding: var(--space-2) clamp(10px, 3vw, 20px);
+  text-decoration: none;
+  color: var(--color-text-secondary);
+  transition: all var(--transition-fast);
+  flex: 1;
+  max-width: 120px;
+  min-height: var(--size-touch-comfortable); /* 48px for comfortable touch */
+  border-radius: var(--radius-md);
+}
+
+.navItem span {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  line-height: 1;
+}
+
+.navItem svg {
+  transition: fill var(--transition-normal), stroke var(--transition-normal);
+}
+
+/* Active state - filled icon with background */
+.navItem.active {
+  color: var(--color-primary-700);
+  background: var(--color-primary-50);
+}
+
+.navItem.active svg {
+  fill: currentColor;
+  stroke: currentColor;
+}
+
+/* Hover state */
+.navItem:hover {
+  color: var(--color-primary-600);
+  background: var(--color-gray-50);
+}
+
+/* Focus visible - IMPROVED for accessibility */
+.navItem:focus-visible {
+  outline: 3px solid var(--color-border-focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-md);
+}
+
+/* Icon wrapper for badge positioning */
+.iconWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--size-icon-lg); /* 32px */
+  height: var(--size-icon-lg);
+}
+
+/* Badge styles - IMPROVED with design tokens */
+.badge {
+  position: absolute;
+  top: -4px;
+  right: -6px;
+  min-width: 18px;
+  height: 18px;
+  background: var(--color-error-500);
+  color: var(--color-white);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  padding: 0 var(--space-1);
+  box-shadow: var(--shadow-sm);
+  animation: badgePulse var(--duration-slow) ease-in-out infinite;
+  border: 2px solid var(--color-bg-primary);
+}
+
+@keyframes badgePulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+/* Ensure badge is visible on active state */
+.navItem.active .badge {
+  background: var(--color-error-500);
+  border-color: var(--color-primary-50);
+}
