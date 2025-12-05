@@ -9,6 +9,7 @@ import {
   IoLeafOutline,
   IoTimeOutline
 } from 'react-icons/io5';
+import ChatModal from '../../Chat/ChatModal';
 import { useAuth } from '../../../../hooks/useAuth';
 import api from '../../../../services/api';
 import styles from './PostCard.module.css';
@@ -16,6 +17,7 @@ import styles from './PostCard.module.css';
 const PostCard = ({ post }) => {
   const { currentUser } = useAuth();
   const [isClaimed, setIsClaimed] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(0);
   const [comments, setComments] = useState([]);
@@ -69,6 +71,14 @@ const PostCard = ({ post }) => {
   const handleClaim = () => {
     setIsClaimed(true);
     // TODO: Integrate with backend API
+  };
+
+  const handleOpenChat = () => {
+    setIsChatOpen(true);
+  };
+
+  const handleCloseChat = () => {
+    setIsChatOpen(false);
   };
 
   const handleToggleComments = () => {
@@ -181,6 +191,10 @@ const PostCard = ({ post }) => {
           <IoChatbubbleOutline size={18} />
           <span>{comments.length > 0 ? `${comments.length} Comment${comments.length > 1 ? 's' : ''}` : 'Comment'}</span>
         </button>
+        <button className={styles.actionBtn} onClick={handleOpenChat}>
+          <IoChatbubbleOutline size={18} />
+          <span>Message</span>
+        </button>
       </div>
 
       {/* Comments Section */}
@@ -236,6 +250,14 @@ const PostCard = ({ post }) => {
           </div>
         </div>
       )}
+
+      {/* Chat Modal */}
+      <ChatModal
+        isOpen={isChatOpen}
+        onClose={handleCloseChat}
+        recipientName={post.author}
+        postTitle={post.title || 'Food item'}
+      />
     </article>
   );
 };

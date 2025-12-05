@@ -87,37 +87,19 @@ export const AuthProvider = ({ children }) => {
     try {
       const supabaseUser = session.user;
 
-      // Get pending registration data
-      const pendingRole = localStorage.getItem('pending_role') || 'client';
-      const pendingAddress = localStorage.getItem('pending_restaurant_address');
-      const pendingPhone = localStorage.getItem('pending_restaurant_phone');
-
-      // Prepare auth data
-      const authData = {
+      // Send Supabase user data to our backend
+      // Backend will create user if not exists or return existing user
+      const response = await authService.supabaseAuth({
         email: supabaseUser.email,
         full_name: supabaseUser.user_metadata?.full_name || supabaseUser.email,
         google_id: supabaseUser.id,
         supabase_token: session.access_token,
-        role: pendingRole,
-      };
+        // Role will be determined on first registration or from DB
+        role: localStorage.getItem('pending_role') || 'client'
+      });
 
-      // Add restaurant-specific fields if role is restaurant
-      if (pendingRole === 'restaurant') {
-        if (pendingAddress) {
-          authData.address = pendingAddress;
-        }
-        if (pendingPhone) {
-          authData.phone = pendingPhone;
-        }
-      }
-
-      // Send data to backend
-      const response = await authService.supabaseAuth(authData);
-
-      // Clear pending data
+      // Clear pending role
       localStorage.removeItem('pending_role');
-      localStorage.removeItem('pending_restaurant_address');
-      localStorage.removeItem('pending_restaurant_phone');
 
       setCurrentUser(response.user);
       setIsAuthenticated(true);

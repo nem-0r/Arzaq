@@ -2,7 +2,7 @@ import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { LanguageProvider } from './context/LanguageContext';
-import { AuthProvider } from './context/AuthContextSupabase';
+import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import Loading from './components/common/Loading/Loading';
 import SkipLink from './components/common/SkipLink/SkipLink';
@@ -19,9 +19,7 @@ const LoginPage = lazy(() => import('./pages/LoginPage/LoginPage'));
 const RegisterPage = lazy(() => import('./pages/RegisterPage/RegisterPage'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard/AdminDashboard'));
 const RestaurantDashboard = lazy(() => import('./pages/RestaurantDashboard/RestaurantDashboard'));
-const RestaurantOrdersPage = lazy(() => import('./pages/RestaurantOrdersPage/RestaurantOrdersPage'));
 const RestaurantDetailsPage = lazy(() => import('./pages/RestaurantDetailsPage/RestaurantDetailsPage'));
-const OrderConfirmationPage = lazy(() => import('./pages/OrderConfirmationPage/OrderConfirmationPage'));
 
 function App() {
   const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
@@ -38,7 +36,6 @@ function App() {
                   <Route path="/" element={<HomePage />} />
                   <Route path="/map" element={<MapPage />} />
                   <Route path="/cart" element={<CartPage />} />
-                  <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
                   <Route path="/community" element={<CommunityPage />} />
                   <Route path="/profile" element={<ProfilePage />} />
                   <Route path="/login" element={<LoginPage />} />
@@ -61,14 +58,6 @@ function App() {
                     element={
                       <RoleGuard allowedRoles={['restaurant']}>
                         <RestaurantDashboard />
-                      </RoleGuard>
-                    }
-                  />
-                  <Route
-                    path="/restaurant-orders"
-                    element={
-                      <RoleGuard allowedRoles={['restaurant']}>
-                        <RestaurantOrdersPage />
                       </RoleGuard>
                     }
                   />

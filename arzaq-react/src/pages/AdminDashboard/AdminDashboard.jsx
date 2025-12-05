@@ -1,7 +1,7 @@
 // src/pages/AdminDashboard/AdminDashboard.jsx
 import React, { useState, useEffect } from 'react';
 import Header from '../../components/layout/Header/Header';
-import AdminNav from '../../components/layout/AdminNav/AdminNav';
+import BottomNav from '../../components/layout/BottomNav/BottomNav';
 import { restaurantService } from '../../api/services';
 import { useTranslation } from '../../hooks/useTranslation';
 import styles from './AdminDashboard.module.css';
@@ -62,9 +62,8 @@ const AdminDashboard = () => {
   return (
     <div className="page-container">
       <Header />
-      <AdminNav />
 
-      <main id="main-content" className={`${styles.mainContent} main-content`}>
+      <main id="main-content" className="main-content">
         <div className={styles.dashboardContainer}>
           <h1 className={styles.title}>Admin Dashboard</h1>
           <p className={styles.subtitle}>Review and approve restaurant applications</p>
@@ -82,10 +81,10 @@ const AdminDashboard = () => {
             {pendingRestaurants.map((restaurant) => (
               <div key={restaurant.id} className={styles.restaurantCard}>
                 <div className={styles.restaurantInfo}>
-                  <h3 className={styles.restaurantName}>{restaurant.full_name}</h3>
+                  <h3 className={styles.restaurantName}>{restaurant.name}</h3>
                   <p className={styles.restaurantAddress}>{restaurant.address}</p>
                   <p className={styles.restaurantPhone}>
-                    <strong>Phone:</strong> {restaurant.phone || 'Not provided'}
+                    <strong>Phone:</strong> {restaurant.phone}
                   </p>
                   <p className={styles.restaurantEmail}>
                     <strong>Email:</strong> {restaurant.email}
@@ -119,6 +118,8 @@ const AdminDashboard = () => {
           </div>
         </div>
       </main>
+
+      <BottomNav />
     </div>
   );
 };

@@ -42,33 +42,12 @@ const CartPage = () => {
 
   const handleConfirmOrder = () => {
     // Here you would integrate with payment gateway
-    // For now, simulating successful payment
     setOrderPlaced(true);
-
     setTimeout(() => {
-      // Create mock order object
-      const mockOrder = {
-        id: Math.floor(Math.random() * 10000) + 1,
-        pickup_code: `ARZAQ-${Math.floor(Math.random() * 100000)}`,
-        status: 'paid',
-        total: total,
-        subtotal: subtotal,
-        created_at: new Date().toISOString(),
-        items: cartItems.map(item => ({
-          ...item,
-          food_name: item.name,
-          subtotal: item.price * item.quantity
-        }))
-      };
-
       clearCart();
       setShowCheckoutModal(false);
       setOrderPlaced(false);
-
-      // Navigate to Order Confirmation Page with order data
-      navigate('/order-confirmation', {
-        state: { order: mockOrder }
-      });
+      navigate('/');
     }, 2000);
   };
 
@@ -148,18 +127,24 @@ const CartPage = () => {
             <h3 className={styles.summaryTitle}>{t('cart_order_summary')}</h3>
 
             <div className={styles.summaryRow}>
-              <span className={styles.summaryLabel}>Сумма заказа</span>
+              <span className={styles.summaryLabel}>{t('cart_subtotal')}</span>
               <span className={styles.summaryValue}>{formatPrice(subtotal)}</span>
             </div>
 
-            <div className={styles.infoNote}>
-              ℹ️ Самовывоз - доставка не требуется
+            <div className={styles.summaryRow}>
+              <span className={styles.summaryLabel}>{t('cart_delivery_fee')}</span>
+              <span className={styles.summaryValue}>{formatPrice(deliveryFee)}</span>
+            </div>
+
+            <div className={styles.summaryRow}>
+              <span className={styles.summaryLabel}>{t('cart_tax')}</span>
+              <span className={styles.summaryValue}>{formatPrice(tax)}</span>
             </div>
 
             <div className={styles.divider}></div>
 
             <div className={styles.summaryRow}>
-              <span className={styles.totalLabel}>Итого к оплате</span>
+              <span className={styles.totalLabel}>{t('cart_total')}</span>
               <span className={styles.totalValue}>{formatPrice(total)}</span>
             </div>
           </div>

@@ -1,7 +1,7 @@
 // src/pages/RestaurantDashboard/RestaurantDashboard.jsx
 import React, { useState, useEffect } from 'react';
 import Header from '../../components/layout/Header/Header';
-import RestaurantNav from '../../components/layout/RestaurantNav/RestaurantNav';
+import BottomNav from '../../components/layout/BottomNav/BottomNav';
 import ImageUpload from '../../components/common/ImageUpload/ImageUpload';
 import { restaurantService, foodService } from '../../api/services';
 import { geocodeAddress, validateAddressForGeocoding } from '../../utils/geocoding';
@@ -252,7 +252,7 @@ const RestaurantDashboard = () => {
             <p>Loading restaurant data...</p>
           </div>
         </main>
-        <RestaurantNav />
+        <BottomNav />
       </div>
     );
   }
@@ -373,7 +373,7 @@ const RestaurantDashboard = () => {
             </form>
           </div>
         </main>
-        <RestaurantNav />
+        <BottomNav />
       </div>
     );
   }
@@ -390,7 +390,7 @@ const RestaurantDashboard = () => {
             <p>You will be notified once approved.</p>
           </div>
         </main>
-        <RestaurantNav />
+        <BottomNav />
       </div>
     );
   }
@@ -408,7 +408,7 @@ const RestaurantDashboard = () => {
             )}
           </div>
         </main>
-        <RestaurantNav />
+        <BottomNav />
       </div>
     );
   }
@@ -416,9 +416,8 @@ const RestaurantDashboard = () => {
   return (
     <div className="page-container">
       <Header />
-      <RestaurantNav />
 
-      <main id="main-content" className={`${styles.mainContent} main-content`}>
+      <main id="main-content" className="main-content">
         <div className={styles.container}>
           <div className={styles.header}>
             <div>
@@ -583,7 +582,7 @@ const RestaurantDashboard = () => {
         </div>
       </main>
 
-      <RestaurantNav />
+      <BottomNav />
     </div>
   );
 };
