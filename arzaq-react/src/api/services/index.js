@@ -8,3 +8,7 @@ export { default as postService } from './post.service';
 export { default as commentService } from './comment.service';
 export { default as restaurantService } from './restaurant.service';
 export { default as foodService } from './food.service';
+export { default as impactService } from './impact.service';
+export { default as notificationService } from './notification.service';
+export { default as likeService } from './like.service';
+export { default as uploadService } from './upload.service';

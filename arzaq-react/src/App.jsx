@@ -20,6 +20,10 @@ const RegisterPage = lazy(() => import('./pages/RegisterPage/RegisterPage'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard/AdminDashboard'));
 const RestaurantDashboard = lazy(() => import('./pages/RestaurantDashboard/RestaurantDashboard'));
 const RestaurantDetailsPage = lazy(() => import('./pages/RestaurantDetailsPage/RestaurantDetailsPage'));
+const NotificationsPage = lazy(() => import('./pages/NotificationsPage/NotificationsPage'));
+const PrivacyPage = lazy(() => import('./pages/PrivacyPage/PrivacyPage'));
+const HelpPage = lazy(() => import('./pages/HelpPage/HelpPage'));
+const TermsPage = lazy(() => import('./pages/TermsPage/TermsPage'));
 
 function App() {
   const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
@@ -41,6 +45,10 @@ function App() {
                   <Route path="/login" element={<LoginPage />} />
                   <Route path="/register" element={<RegisterPage />} />
                   <Route path="/restaurant/:id" element={<RestaurantDetailsPage />} />
+                  <Route path="/notifications" element={<NotificationsPage />} />
+                  <Route path="/privacy" element={<PrivacyPage />} />
+                  <Route path="/help" element={<HelpPage />} />
+                  <Route path="/terms" element={<TermsPage />} />
 
                   {/* Admin-only routes */}
                   <Route

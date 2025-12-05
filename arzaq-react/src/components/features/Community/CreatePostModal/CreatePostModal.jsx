@@ -1,6 +1,6 @@
 // src/components/features/Community/CreatePostModal/CreatePostModal.jsx
 import React, { useState, useEffect } from 'react';
-import api from '../../../../services/api';
+import { postService, restaurantService, uploadService } from '../../../../api/services';
 import { useAuth } from '../../../../hooks/useAuth';
 import styles from './CreatePostModal.module.css';
 
@@ -37,23 +37,24 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated }) => {
 
   const loadRestaurants = async () => {
     try {
-      const response = await api.restaurants.search('');
-      if (response.success) {
-        setRestaurants(response.restaurants);
-      }
+      const restaurantsData = await restaurantService.getAllRestaurants({ status: 'approved' });
+      setRestaurants(restaurantsData || []);
     } catch (error) {
       console.error('Failed to load restaurants:', error);
+      setRestaurants([]);
     }
   };
 
   const searchRestaurants = async (query) => {
     try {
-      const response = await api.restaurants.search(query);
-      if (response.success) {
-        setRestaurants(response.restaurants);
-      }
+      const restaurantsData = await restaurantService.getAllRestaurants({
+        status: 'approved',
+        search: query
+      });
+      setRestaurants(restaurantsData || []);
     } catch (error) {
       console.error('Failed to search restaurants:', error);
+      setRestaurants([]);
     }
   };
 
@@ -76,10 +77,10 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated }) => {
     setFormData({
       ...formData,
       restaurantId: restaurant.id,
-      restaurantName: restaurant.name,
+      restaurantName: restaurant.restaurant_name || restaurant.full_name,
       restaurantAddress: restaurant.address
     });
-    setSearchQuery(restaurant.name);
+    setSearchQuery(restaurant.restaurant_name || restaurant.full_name);
     setShowRestaurantDropdown(false);
   };
 
@@ -159,10 +160,8 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated }) => {
       if (formData.image) {
         setIsUploadingImage(true);
         try {
-          const uploadResponse = await api.upload.image(formData.image);
-          if (uploadResponse.success) {
-            imageUrl = uploadResponse.url;
-          }
+          const uploadResponse = await uploadService.uploadImage(formData.image);
+          imageUrl = uploadResponse.url;
         } catch (uploadError) {
           console.error('Failed to upload image:', uploadError);
           setErrors({ submit: 'Failed to upload image. Please try again.' });
@@ -175,38 +174,30 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated }) => {
 
       const postData = {
         text: formData.text.trim(),
-        location: `📍 ${formData.restaurantName}`,
-        author: currentUser?.fullName || currentUser?.email || 'Anonymous',
-        avatar: '👤',
-        time: 'Just now',
-        restaurantId: formData.restaurantId,
-        restaurantName: formData.restaurantName,
-        restaurantAddress: formData.restaurantAddress,
-        userId: currentUser?.email,
-        image: imageUrl // Add image URL if uploaded
+        restaurant_id: formData.restaurantId,
+        location: formData.restaurantAddress,
+        image_url: imageUrl
       };
 
-      const response = await api.posts.create(postData);
+      const newPost = await postService.create(postData);
 
-      if (response.success) {
-        // Reset form
-        setFormData({
-          text: '',
-          restaurantId: '',
-          restaurantName: '',
-          restaurantAddress: '',
-          image: null,
-          imagePreview: null
-        });
-        setSearchQuery('');
-        setErrors({});
+      // Reset form
+      setFormData({
+        text: '',
+        restaurantId: '',
+        restaurantName: '',
+        restaurantAddress: '',
+        image: null,
+        imagePreview: null
+      });
+      setSearchQuery('');
+      setErrors({});
 
-        // Notify parent component
-        onPostCreated(response.post);
+      // Notify parent component
+      onPostCreated(newPost);
 
-        // Close modal
-        onClose();
-      }
+      // Close modal
+      onClose();
     } catch (error) {
       console.error('Failed to create post:', error);
       setErrors({ submit: error.message || 'Failed to create post. Please try again.' });
@@ -281,7 +272,9 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated }) => {
                       className={styles.dropdownItem}
                       onClick={() => handleRestaurantSelect(restaurant)}
                     >
-                      <div className={styles.restaurantName}>{restaurant.name}</div>
+                      <div className={styles.restaurantName}>
+                        {restaurant.restaurant_name || restaurant.full_name}
+                      </div>
                       <div className={styles.restaurantAddress}>{restaurant.address}</div>
                     </div>
                   ))}

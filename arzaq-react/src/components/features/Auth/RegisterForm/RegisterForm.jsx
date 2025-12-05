@@ -67,6 +67,7 @@ const RegisterForm = () => {
       password: '',
       confirmPassword: '',
       role: 'client', // Default role
+      restaurantName: '',
       address: '',
       phone: ''
     },
@@ -78,6 +79,12 @@ const RegisterForm = () => {
 
   // Submit handler
   const onSubmit = async (formValues) => {
+    // Validate restaurant name for restaurant role
+    if (formValues.role === 'restaurant' && !formValues.restaurantName.trim()) {
+      setFieldError('restaurantName', 'Restaurant name is required');
+      return;
+    }
+
     // Validate address for restaurant role
     if (formValues.role === 'restaurant' && !formValues.address.trim()) {
       setFieldError('address', 'Address is required for restaurants');
@@ -94,6 +101,7 @@ const RegisterForm = () => {
 
       // Add restaurant-specific fields
       if (formValues.role === 'restaurant') {
+        registrationData.restaurantName = formValues.restaurantName.trim();
         registrationData.address = formValues.address.trim();
         if (formValues.phone.trim()) {
           registrationData.phone = formValues.phone.trim();
@@ -235,6 +243,24 @@ const RegisterForm = () => {
       {/* Restaurant-specific fields */}
       {values.role === 'restaurant' && (
         <>
+          <div className={styles.formGroup}>
+            <label htmlFor="restaurantName">Restaurant Name *</label>
+            <input
+              type="text"
+              id="restaurantName"
+              name="restaurantName"
+              value={values.restaurantName}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              placeholder="Enter your restaurant name"
+              disabled={isSubmitting}
+              className={touched.restaurantName && errors.restaurantName ? styles.inputError : ''}
+            />
+            {touched.restaurantName && errors.restaurantName && (
+              <span className={styles.errorMessage}>{errors.restaurantName}</span>
+            )}
+          </div>
+
           <div className={styles.formGroup}>
             <label htmlFor="address">Restaurant Address *</label>
             <input

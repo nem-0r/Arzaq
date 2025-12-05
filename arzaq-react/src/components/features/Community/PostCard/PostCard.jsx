@@ -11,7 +11,7 @@ import {
 } from 'react-icons/io5';
 import ChatModal from '../../Chat/ChatModal';
 import { useAuth } from '../../../../hooks/useAuth';
-import api from '../../../../services/api';
+import { likeService, commentService } from '../../../../api/services';
 import styles from './PostCard.module.css';
 
 const PostCard = ({ post }) => {
@@ -31,38 +31,41 @@ const PostCard = ({ post }) => {
 
   const loadLikes = async () => {
     try {
-      const response = await api.likes.getLikes(post.id);
-      if (response.success) {
-        setLikesCount(response.likesCount);
-        // Check if current user liked the post
-        const userId = currentUser?.email || 'guest';
-        setIsLiked(response.likes.includes(userId));
-      }
+      const likesData = await likeService.getPostLikes(post.id);
+      // Backend returns array of like objects: [{user_id, username, created_at}, ...]
+      setLikesCount(likesData.length);
+      // Check if current user liked the post
+      const userId = currentUser?.id;
+      setIsLiked(likesData.some(like => like.user_id === userId));
     } catch (error) {
       console.error('Failed to load likes:', error);
+      setLikesCount(0);
+      setIsLiked(false);
     }
   };
 
   const loadComments = async () => {
     try {
-      const response = await api.comments.getComments(post.id);
-      if (response.success) {
-        setComments(response.comments);
-      }
+      const commentsData = await commentService.getPostComments(post.id);
+      // Backend returns array of comments directly
+      setComments(commentsData || []);
     } catch (error) {
       console.error('Failed to load comments:', error);
+      setComments([]);
     }
   };
 
   const handleLike = async () => {
-    try {
-      const userId = currentUser?.email || 'guest';
-      const response = await api.likes.toggleLike(post.id, userId);
+    if (!currentUser) {
+      console.warn('User must be logged in to like posts');
+      return;
+    }
 
-      if (response.success) {
-        setIsLiked(response.isLiked);
-        setLikesCount(response.likesCount);
-      }
+    try {
+      // Toggle like on backend
+      await likeService.toggleLike(post.id);
+      // Reload likes to get updated state
+      await loadLikes();
     } catch (error) {
       console.error('Failed to toggle like:', error);
     }
@@ -86,18 +89,19 @@ const PostCard = ({ post }) => {
   };
 
   const handleAddComment = async (commentText) => {
+    if (!currentUser) {
+      console.warn('User must be logged in to comment');
+      return;
+    }
+
     try {
       const commentData = {
-        text: commentText,
-        author: currentUser?.fullName || currentUser?.email || 'Anonymous',
-        userId: currentUser?.email || 'guest'
+        text: commentText
       };
 
-      const response = await api.comments.create(post.id, commentData);
-
-      if (response.success) {
-        setComments([...comments, response.comment]);
-      }
+      const newComment = await commentService.create(post.id, commentData);
+      // Add the new comment to the list
+      setComments([...comments, newComment]);
     } catch (error) {
       console.error('Failed to add comment:', error);
     }
@@ -105,11 +109,9 @@ const PostCard = ({ post }) => {
 
   const handleDeleteComment = async (commentId) => {
     try {
-      const response = await api.comments.delete(post.id, commentId);
-
-      if (response.success) {
-        setComments(comments.filter(c => c.id !== commentId));
-      }
+      await commentService.delete(commentId);
+      // Remove the comment from the list
+      setComments(comments.filter(c => c.id !== commentId));
     } catch (error) {
       console.error('Failed to delete comment:', error);
     }
@@ -191,10 +193,6 @@ const PostCard = ({ post }) => {
           <IoChatbubbleOutline size={18} />
           <span>{comments.length > 0 ? `${comments.length} Comment${comments.length > 1 ? 's' : ''}` : 'Comment'}</span>
         </button>
-        <button className={styles.actionBtn} onClick={handleOpenChat}>
-          <IoChatbubbleOutline size={18} />
-          <span>Message</span>
-        </button>
       </div>
 
       {/* Comments Section */}
@@ -213,12 +211,14 @@ const PostCard = ({ post }) => {
                       <IoPersonCircleOutline size={32} />
                     </div>
                     <div className={styles.commentInfo}>
-                      <span className={styles.commentAuthor}>{comment.author}</span>
+                      <span className={styles.commentAuthor}>
+                        {comment.username || comment.full_name || 'Anonymous'}
+                      </span>
                       <span className={styles.commentTime}>
-                        {new Date(comment.createdAt).toLocaleString()}
+                        {new Date(comment.created_at).toLocaleString()}
                       </span>
                     </div>
-                    {(currentUser?.email === comment.userId) && (
+                    {(currentUser?.id === comment.user_id) && (
                       <button
                         className={styles.deleteCommentBtn}
                         onClick={() => handleDeleteComment(comment.id)}

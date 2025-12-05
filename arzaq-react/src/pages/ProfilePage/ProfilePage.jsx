@@ -65,14 +65,34 @@ const ProfilePage = () => {
       ];
 
   const settingsItems = [
-    { label: t('profile_notifications'), icon: 'chevronRight' },
-    { label: t('profile_privacy'), icon: 'chevronRight' },
-    { label: t('profile_language'), icon: 'chevronRight' }
+    {
+      label: t('profile_notifications'),
+      icon: 'chevronRight',
+      onClick: () => navigate('/notifications')
+    },
+    {
+      label: t('profile_privacy'),
+      icon: 'chevronRight',
+      onClick: () => navigate('/privacy')
+    },
+    {
+      label: t('profile_language'),
+      icon: 'chevronRight'
+      // Language switcher can be implemented later
+    }
   ];
 
   const aboutItems = [
-    { label: t('profile_help'), icon: 'chevronRight' },
-    { label: t('profile_terms'), icon: 'chevronRight' }
+    {
+      label: t('profile_help'),
+      icon: 'chevronRight',
+      onClick: () => navigate('/help')
+    },
+    {
+      label: t('profile_terms'),
+      icon: 'chevronRight',
+      onClick: () => navigate('/terms')
+    }
   ];
 
   return (

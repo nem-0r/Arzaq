@@ -1,58 +1,76 @@
 // src/api/services/comment.service.js
 import apiClient from '../client';
-import { API_ENDPOINTS } from '../config';
 
 /**
  * Comment Service - работа с комментариями
  */
 const commentService = {
   /**
-   * Получить все комментарии или комментарии для определенного места
-   * @param {number|null} placeId - ID места (опционально)
+   * Получить все комментарии поста
+   * @param {number} postId - ID поста
    * @returns {Promise<Array>}
    */
-  async getAll(placeId = null) {
+  async getPostComments(postId) {
     try {
-      const url = placeId
-        ? API_ENDPOINTS.COMMENTS.BY_PLACE(placeId)
-        : API_ENDPOINTS.COMMENTS.BASE;
-
-      const response = await apiClient.get(url);
+      const response = await apiClient.get(`/api/posts/${postId}/comments`);
       return response.data;
     } catch (error) {
+      console.error('Failed to get comments:', error);
       throw error;
     }
   },
 
   /**
    * Создать новый комментарий (требует авторизации)
-   * @param {Object} commentData - {place_id, text}
+   * @param {number} postId - ID поста
+   * @param {Object} commentData - {text}
    * @returns {Promise<Object>}
    */
-  async create(commentData) {
+  async create(postId, commentData) {
     try {
-      const response = await apiClient.post(API_ENDPOINTS.COMMENTS.BASE, commentData);
+      const response = await apiClient.post(`/api/posts/${postId}/comments`, commentData);
       return response.data;
     } catch (error) {
-      if (error.status === 404) {
-        throw new Error('error_place_not_found');
+      if (error.response?.status === 404) {
+        throw new Error('error_post_not_found');
       }
+      console.error('Failed to create comment:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Обновить комментарий (требует авторизации и владения)
+   * @param {number} commentId
+   * @param {Object} commentData - {text}
+   * @returns {Promise<Object>}
+   */
+  async update(commentId, commentData) {
+    try {
+      const response = await apiClient.put(`/api/comments/${commentId}`, commentData);
+      return response.data;
+    } catch (error) {
+      if (error.response?.status === 403) {
+        throw new Error('error_not_owner');
+      }
+      console.error('Failed to update comment:', error);
       throw error;
     }
   },
 
   /**
    * Удалить комментарий (требует авторизации и владения комментарием)
-   * @param {number} id
+   * @param {number} commentId
    * @returns {Promise<void>}
    */
-  async delete(id) {
+  async delete(commentId) {
     try {
-      await apiClient.delete(API_ENDPOINTS.COMMENTS.BY_ID(id));
+      await apiClient.delete(`/api/comments/${commentId}`);
     } catch (error) {
-      if (error.status === 403) {
+      if (error.response?.status === 403) {
         throw new Error('error_not_owner');
       }
+      console.error('Failed to delete comment:', error);
       throw error;
     }
   },

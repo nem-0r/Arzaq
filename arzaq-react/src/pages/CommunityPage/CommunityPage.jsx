@@ -8,8 +8,7 @@ import CreatePostButton from '../../components/features/Community/CreatePostButt
 import CreatePostModal from '../../components/features/Community/CreatePostModal/CreatePostModal';
 import LoginPrompt from '../../components/common/LoginPrompt/LoginPrompt';
 import { useAuth } from '../../hooks/useAuth';
-import api from '../../services/api';
-import { COMMUNITY_POSTS } from '../../utils/constants';
+import { postService } from '../../api/services';
 import styles from './CommunityPage.module.css';
 
 // Food rescue categories
@@ -43,20 +42,12 @@ const CommunityPage = () => {
   const loadPosts = async () => {
     setIsLoading(true);
     try {
-      // Load posts from API
-      const response = await api.posts.getAll();
-
-      if (response.success && response.posts.length > 0) {
-        // Use posts from localStorage/API
-        setPosts(response.posts);
-      } else {
-        // Fallback to default posts if no posts exist
-        setPosts(COMMUNITY_POSTS);
-      }
+      // Load posts from real API
+      const postsData = await postService.getAll();
+      setPosts(postsData || []);
     } catch (error) {
       console.error('Failed to load posts:', error);
-      // Fallback to default posts on error
-      setPosts(COMMUNITY_POSTS);
+      setPosts([]);
     } finally {
       setIsLoading(false);
     }

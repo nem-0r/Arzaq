@@ -12,12 +12,8 @@ const BottomNav = () => {
   const { totalItems } = useCart();
   const { currentUser } = useAuth();
 
-  // Hide BottomNav for restaurant and admin users
-  const userRole = currentUser?.role || 'client';
-  if (userRole === 'restaurant' || userRole === 'admin') {
-    return null;
-  }
-
+  // Show BottomNav for all users (client, restaurant, admin)
+  // Each role has the same navigation but different functionality in Profile page
   const navItems = [
     { path: '/', icon: 'home', label: t('nav_home') },
     { path: '/map', icon: 'map', label: t('nav_map') },

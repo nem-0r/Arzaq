@@ -1,6 +1,8 @@
 // src/components/features/Profile/UserImpact/UserImpact.jsx
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { IoEarth, IoTrophy, IoInformationCircleOutline } from 'react-icons/io5';
+import { impactService } from '../../../../api/services';
+import { useAuth } from '../../../../hooks/useAuth';
 import styles from './UserImpact.module.css';
 
 /**
@@ -20,30 +22,92 @@ import styles from './UserImpact.module.css';
  * @param {Array} props.stats.badges - Array of earned badges
  */
 const UserImpact = ({ stats }) => {
-  // Default demo data - ready for backend integration
-  const defaultStats = {
-    mealsRescued: 23,
-    co2Saved: 4.2,
-    mealsGoal: 30,
-    co2Goal: 10,
-    badges: [
-      {
-        id: 1,
-        name: 'Eco Warrior Badge',
-        description: 'Earned for saving 20+ meals',
-        earned: true
-      }
-    ]
-  };
+  const { isAuthenticated } = useAuth();
+  const [impactData, setImpactData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const impactData = stats || defaultStats;
+  // Load impact data from API
+  useEffect(() => {
+    const loadImpactData = async () => {
+      if (!isAuthenticated) {
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        const data = await impactService.getMyImpact();
+
+        // Transform API data to component format
+        const transformedData = {
+          mealsRescued: data.meals_rescued || 0,
+          co2Saved: data.co2_saved || 0,
+          mealsGoal: data.meals_goal || 30,
+          co2Goal: data.co2_goal || 10,
+          badges: [], // TODO: Add badges logic later
+        };
+
+        setImpactData(transformedData);
+        setError(null);
+      } catch (err) {
+        console.error('Failed to load impact data:', err);
+        setError('Failed to load your impact statistics');
+
+        // Fallback to default data on error
+        setImpactData({
+          mealsRescued: 0,
+          co2Saved: 0,
+          mealsGoal: 30,
+          co2Goal: 10,
+          badges: [],
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadImpactData();
+  }, [isAuthenticated]);
+
+  // Use prop stats if provided, otherwise use loaded data
+  const finalImpactData = stats || impactData;
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className={styles.impactContainer}>
+        <div className={styles.loading}>Loading your impact...</div>
+      </div>
+    );
+  }
+
+  // If not authenticated, show default message
+  if (!isAuthenticated) {
+    return (
+      <div className={styles.impactContainer}>
+        <div className={styles.header}>
+          <div className={styles.iconWrapper}>
+            <IoEarth className={styles.icon} size={48} />
+          </div>
+          <h2 className={styles.title}>Your Impact</h2>
+          <p className={styles.subtitle}>Log in to see your environmental impact</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If no data loaded, don't render
+  if (!finalImpactData) {
+    return null;
+  }
 
   // Calculate progress percentages
-  const mealsProgress = Math.min((impactData.mealsRescued / impactData.mealsGoal) * 100, 100);
-  const co2Progress = Math.min((impactData.co2Saved / impactData.co2Goal) * 100, 100);
+  const mealsProgress = Math.min((finalImpactData.mealsRescued / finalImpactData.mealsGoal) * 100, 100);
+  const co2Progress = Math.min((finalImpactData.co2Saved / finalImpactData.co2Goal) * 100, 100);
 
   // Get earned badges
-  const earnedBadges = impactData.badges?.filter(badge => badge.earned) || [];
+  const earnedBadges = finalImpactData.badges?.filter(badge => badge.earned) || [];
 
   return (
     <div className={styles.impactContainer}>
@@ -61,7 +125,7 @@ const UserImpact = ({ stats }) => {
         {/* Meals Rescued */}
         <div className={styles.statCard}>
           <div className={styles.statValue} style={{ color: 'var(--primary-green-dark)' }}>
-            {impactData.mealsRescued}
+            {finalImpactData.mealsRescued}
           </div>
           <div className={styles.statLabel}>Meals Rescued</div>
           <div className={styles.progressBar}>
@@ -74,14 +138,14 @@ const UserImpact = ({ stats }) => {
             />
           </div>
           <div className={styles.goalText}>
-            Goal: {impactData.mealsGoal} meals
+            Goal: {finalImpactData.mealsGoal} meals
           </div>
         </div>
 
         {/* CO2 Saved */}
         <div className={styles.statCard}>
           <div className={styles.statValue} style={{ color: 'var(--accent-orange)' }}>
-            {impactData.co2Saved}kg
+            {finalImpactData.co2Saved.toFixed(1)}kg
           </div>
           <div className={styles.statLabel}>CO2 Saved</div>
           <div className={styles.progressBar}>
@@ -94,7 +158,7 @@ const UserImpact = ({ stats }) => {
             />
           </div>
           <div className={styles.goalText}>
-            Goal: {impactData.co2Goal}kg
+            Goal: {finalImpactData.co2Goal}kg
           </div>
         </div>
       </div>
