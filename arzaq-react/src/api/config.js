@@ -38,4 +38,11 @@ export const API_ENDPOINTS = {
 };
 
 // API Base URL (из переменных окружения)
-export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+let baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
+// ВАЖНО: Принудительно заменяем http:// на https:// для production
+if (baseUrl.includes('railway.app') && baseUrl.startsWith('http://')) {
+  baseUrl = baseUrl.replace('http://', 'https://');
+}
+
+export const API_BASE_URL = baseUrl;

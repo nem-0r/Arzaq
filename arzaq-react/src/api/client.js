@@ -2,7 +2,12 @@
 import axios from 'axios';
 
 // Получаем базовый URL из переменных окружения
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+let API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
+// ВАЖНО: Принудительно заменяем http:// на https:// для production
+if (API_BASE_URL.includes('railway.app') && API_BASE_URL.startsWith('http://')) {
+  API_BASE_URL = API_BASE_URL.replace('http://', 'https://');
+}
 
 // DEBUG: Показываем какой API URL используется
 console.log('🔧 API_BASE_URL:', API_BASE_URL);
