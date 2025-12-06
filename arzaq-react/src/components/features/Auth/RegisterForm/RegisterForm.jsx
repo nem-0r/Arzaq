@@ -1,18 +1,15 @@
 // src/components/features/Auth/RegisterForm/RegisterForm.jsx
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../../hooks/useAuth';
 import { useTranslation } from '../../../../hooks/useTranslation';
 import { useFormValidation } from '../../../../hooks/useFormValidation';
-import GoogleAuthButton from '../GoogleAuthButton/GoogleAuthButton';
-import AuthDivider from '../AuthDivider/AuthDivider';
 import styles from '../LoginForm/LoginForm.module.css'; // Reuse same styles
 
 const RegisterForm = () => {
-  const { register, registerWithGoogle } = useAuth();
+  const { register } = useAuth();
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [googleError, setGoogleError] = useState(null);
 
   // Validation rules
   const validationRules = {
@@ -67,7 +64,6 @@ const RegisterForm = () => {
       password: '',
       confirmPassword: '',
       role: 'client', // Default role
-      restaurantName: '',
       address: '',
       phone: ''
     },
@@ -79,12 +75,6 @@ const RegisterForm = () => {
 
   // Submit handler
   const onSubmit = async (formValues) => {
-    // Validate restaurant name for restaurant role
-    if (formValues.role === 'restaurant' && !formValues.restaurantName.trim()) {
-      setFieldError('restaurantName', 'Restaurant name is required');
-      return;
-    }
-
     // Validate address for restaurant role
     if (formValues.role === 'restaurant' && !formValues.address.trim()) {
       setFieldError('address', 'Address is required for restaurants');
@@ -101,7 +91,6 @@ const RegisterForm = () => {
 
       // Add restaurant-specific fields
       if (formValues.role === 'restaurant') {
-        registrationData.restaurantName = formValues.restaurantName.trim();
         registrationData.address = formValues.address.trim();
         if (formValues.phone.trim()) {
           registrationData.phone = formValues.phone.trim();
@@ -109,7 +98,13 @@ const RegisterForm = () => {
       }
 
       await register(registrationData);
-      alert(t('alert_register_success'));
+
+      if (formValues.role === 'restaurant') {
+        alert('Registration successful! Please wait for admin approval before accessing the restaurant dashboard.');
+      } else {
+        alert(t('alert_register_success'));
+      }
+
       navigate('/login');
     } catch (error) {
       // Обрабатываем ошибки от бэкенда
@@ -123,28 +118,6 @@ const RegisterForm = () => {
         alert(error.message || t('error_network') || 'An error occurred');
       }
     }
-  };
-
-  // Google register handler
-  const handleGoogleClick = () => {
-    // Store the selected role before Google OAuth redirect
-    // This will be used after Supabase redirects back
-    const { setRegistrationRole } = useAuth();
-    setRegistrationRole(values.role || 'client');
-
-    // For restaurant role, also store address if provided
-    if (values.role === 'restaurant' && values.address) {
-      localStorage.setItem('pending_restaurant_address', values.address);
-      if (values.phone) {
-        localStorage.setItem('pending_restaurant_phone', values.phone);
-      }
-    }
-  };
-
-  // Google error handler
-  const handleGoogleError = (error) => {
-    console.error('Google OAuth error:', error);
-    setGoogleError('Ошибка подключения к Google. Попробуйте снова.');
   };
 
   return (
@@ -244,24 +217,6 @@ const RegisterForm = () => {
       {values.role === 'restaurant' && (
         <>
           <div className={styles.formGroup}>
-            <label htmlFor="restaurantName">Restaurant Name *</label>
-            <input
-              type="text"
-              id="restaurantName"
-              name="restaurantName"
-              value={values.restaurantName}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              placeholder="Enter your restaurant name"
-              disabled={isSubmitting}
-              className={touched.restaurantName && errors.restaurantName ? styles.inputError : ''}
-            />
-            {touched.restaurantName && errors.restaurantName && (
-              <span className={styles.errorMessage}>{errors.restaurantName}</span>
-            )}
-          </div>
-
-          <div className={styles.formGroup}>
             <label htmlFor="address">Restaurant Address *</label>
             <input
               type="text"
@@ -278,7 +233,7 @@ const RegisterForm = () => {
               <span className={styles.errorMessage}>{errors.address}</span>
             )}
             <small style={{ color: '#6b7280', fontSize: '0.875rem', marginTop: '4px', display: 'block' }}>
-              This will be used to show your restaurant on the map
+              Your full name above will be used as the restaurant name
             </small>
           </div>
 
@@ -309,22 +264,6 @@ const RegisterForm = () => {
       >
         {isSubmitting ? 'Loading...' : t('register_button')}
       </button>
-
-      <AuthDivider />
-
-      <GoogleAuthButton
-        onBeforeAuth={handleGoogleClick}
-        onError={handleGoogleError}
-        buttonText="Зарегистрироваться через Google"
-        mode="register"
-        role={values.role}
-      />
-
-      {googleError && (
-        <div className={styles.errorMessage} style={{ textAlign: 'center', marginTop: '10px' }}>
-          {googleError}
-        </div>
-      )}
     </form>
   );
 };

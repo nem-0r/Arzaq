@@ -4,31 +4,15 @@ import Header from '../../components/layout/Header/Header';
 import BottomNav from '../../components/layout/BottomNav/BottomNav';
 import ImageUpload from '../../components/common/ImageUpload/ImageUpload';
 import { restaurantService, foodService } from '../../api/services';
-import { geocodeAddress, validateAddressForGeocoding } from '../../utils/geocoding';
-import { IoAdd, IoRestaurant, IoPencil, IoTrash, IoCheckmarkCircle, IoLocationSharp } from 'react-icons/io5';
+import { IoAdd, IoRestaurant, IoTrash } from 'react-icons/io5';
 import styles from './RestaurantDashboard.module.css';
 
 const RestaurantDashboard = () => {
   const [restaurant, setRestaurant] = useState(null);
   const [foods, setFoods] = useState([]);
-  const [showRestaurantForm, setShowRestaurantForm] = useState(false);
   const [showFoodForm, setShowFoodForm] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isGeocoding, setIsGeocoding] = useState(false);
-  const [addressVerified, setAddressVerified] = useState(false);
-  const [geocodedCoordinates, setGeocodedCoordinates] = useState(null);
-
-  // Restaurant Form State
-  const [restaurantData, setRestaurantData] = useState({
-    name: '',
-    address: '',
-    phone: '',
-    email: '',
-    description: '',
-    latitude: '',
-    longitude: ''
-  });
 
   // Food Form State
   const [foodData, setFoodData] = useState({
@@ -53,111 +37,18 @@ const RestaurantDashboard = () => {
       const restaurantData = await restaurantService.getMyRestaurant();
       setRestaurant(restaurantData);
 
-      if (restaurantData) {
+      // Only load foods if restaurant is approved
+      if (restaurantData && restaurantData.is_approved) {
         const foodsData = await foodService.getMyFoods();
         setFoods(foodsData);
       }
     } catch (err) {
       console.error('Error loading restaurant:', err);
 
-      // If no restaurant found (404), show create form
-      if (err.response?.status === 404) {
-        setShowRestaurantForm(true);
-      } else {
-        // For other errors, show user-friendly message
-        alert('Failed to load restaurant data. Please try again later.');
-      }
+      // Show user-friendly error message
+      alert('Failed to load restaurant data. Please ensure you are logged in with a restaurant account.');
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const handleVerifyAddress = async () => {
-    setIsGeocoding(true);
-    setAddressVerified(false);
-    setGeocodedCoordinates(null);
-
-    try {
-      // Validate address format first
-      const validation = validateAddressForGeocoding(restaurantData.address);
-      if (!validation.isValid) {
-        alert(validation.message);
-        return;
-      }
-
-      // Geocode address
-      const coordinates = await geocodeAddress(restaurantData.address);
-      setGeocodedCoordinates(coordinates);
-      setAddressVerified(true);
-
-      // Update state with coordinates for preview
-      setRestaurantData({
-        ...restaurantData,
-        latitude: coordinates.latitude.toString(),
-        longitude: coordinates.longitude.toString()
-      });
-
-      alert(`Address verified successfully!\nCoordinates: ${coordinates.latitude.toFixed(6)}, ${coordinates.longitude.toFixed(6)}`);
-    } catch (err) {
-      console.error('Geocoding error:', err);
-      alert(err.message || 'Failed to verify address. Please try again.');
-      setAddressVerified(false);
-      setGeocodedCoordinates(null);
-    } finally {
-      setIsGeocoding(false);
-    }
-  };
-
-  const handleRestaurantSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    try {
-      let coordinates = geocodedCoordinates;
-
-      // If address wasn't verified yet, geocode it now
-      if (!coordinates) {
-        setIsGeocoding(true);
-
-        // Validate address format
-        const validation = validateAddressForGeocoding(restaurantData.address);
-        if (!validation.isValid) {
-          alert(validation.message);
-          setIsSubmitting(false);
-          setIsGeocoding(false);
-          return;
-        }
-
-        // Geocode address
-        coordinates = await geocodeAddress(restaurantData.address);
-        setIsGeocoding(false);
-      }
-
-      // Prepare data with geocoded coordinates
-      const dataToSend = {
-        name: restaurantData.name,
-        address: restaurantData.address,
-        phone: restaurantData.phone,
-        email: restaurantData.email,
-        description: restaurantData.description,
-        latitude: coordinates.latitude,
-        longitude: coordinates.longitude
-      };
-
-      // Create restaurant
-      const newRestaurant = await restaurantService.createRestaurant(dataToSend);
-      setRestaurant(newRestaurant);
-      setShowRestaurantForm(false);
-      alert('Restaurant profile created successfully! Your application is now pending admin approval.');
-    } catch (err) {
-      console.error('Error creating restaurant:', err);
-
-      // Show user-friendly error message
-      const errorMessage = err.message || err.response?.data?.message || 'Failed to create restaurant profile. Please try again.';
-      alert(errorMessage);
-    } finally {
-      setIsSubmitting(false);
-      setIsGeocoding(false);
     }
   };
 
@@ -263,114 +154,10 @@ const RestaurantDashboard = () => {
         <Header />
         <main id="main-content" className="main-content">
           <div className={styles.container}>
-            <h1>Create Restaurant Profile</h1>
+            <h1>Restaurant Not Found</h1>
             <p className={styles.subtitle}>
-              Fill in your restaurant details. Your profile will be reviewed by our admin team.
+              Please register as a restaurant to access this page.
             </p>
-
-            <form onSubmit={handleRestaurantSubmit} className={styles.form}>
-              <div className={styles.formGroup}>
-                <label>Restaurant Name *</label>
-                <input
-                  type="text"
-                  value={restaurantData.name}
-                  onChange={(e) => setRestaurantData({ ...restaurantData, name: e.target.value })}
-                  required
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label>
-                  Full Address *
-                  <span className={styles.hint}>
-                    <IoLocationSharp /> Enter complete address including street number, city, and country
-                  </span>
-                </label>
-                <input
-                  type="text"
-                  value={restaurantData.address}
-                  onChange={(e) => {
-                    setRestaurantData({ ...restaurantData, address: e.target.value });
-                    // Reset verification when address changes
-                    setAddressVerified(false);
-                    setGeocodedCoordinates(null);
-                  }}
-                  placeholder="e.g., Al-Farabi Avenue 77, Almaty, Kazakhstan"
-                  required
-                />
-
-                {/* Address verification button */}
-                <button
-                  type="button"
-                  onClick={handleVerifyAddress}
-                  disabled={!restaurantData.address || isGeocoding}
-                  className={`${styles.verifyBtn} ${addressVerified ? styles.verified : ''}`}
-                >
-                  {isGeocoding ? (
-                    'Verifying address...'
-                  ) : addressVerified ? (
-                    <>
-                      <IoCheckmarkCircle /> Address Verified
-                    </>
-                  ) : (
-                    <>
-                      <IoLocationSharp /> Verify Address
-                    </>
-                  )}
-                </button>
-
-                {/* Show coordinates preview when verified */}
-                {addressVerified && geocodedCoordinates && (
-                  <div className={styles.coordinatesPreview}>
-                    <small>
-                      Coordinates: {geocodedCoordinates.latitude.toFixed(6)}, {geocodedCoordinates.longitude.toFixed(6)}
-                    </small>
-                  </div>
-                )}
-              </div>
-
-              <div className={styles.formRow}>
-                <div className={styles.formGroup}>
-                  <label>Phone *</label>
-                  <input
-                    type="tel"
-                    value={restaurantData.phone}
-                    onChange={(e) => setRestaurantData({ ...restaurantData, phone: e.target.value })}
-                    required
-                  />
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label>Email *</label>
-                  <input
-                    type="email"
-                    value={restaurantData.email}
-                    onChange={(e) => setRestaurantData({ ...restaurantData, email: e.target.value })}
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className={styles.formGroup}>
-                <label>Description</label>
-                <textarea
-                  value={restaurantData.description}
-                  onChange={(e) => setRestaurantData({ ...restaurantData, description: e.target.value })}
-                  rows={4}
-                  placeholder="Tell us about your restaurant..."
-                />
-              </div>
-
-              <button type="submit" className={styles.submitBtn} disabled={isSubmitting || isGeocoding}>
-                {isGeocoding ? 'Converting address to coordinates...' : isSubmitting ? 'Creating restaurant...' : 'Create Restaurant Profile'}
-              </button>
-
-              {!addressVerified && (
-                <p className={styles.verifyHint}>
-                  Tip: Click "Verify Address" to ensure your address is correct before submitting
-                </p>
-              )}
-            </form>
           </div>
         </main>
         <BottomNav />
@@ -378,7 +165,8 @@ const RestaurantDashboard = () => {
     );
   }
 
-  if (restaurant.status === 'pending') {
+  // Check restaurant approval status
+  if (!restaurant.is_approved && restaurant.is_active) {
     return (
       <div className="page-container">
         <Header />
@@ -388,6 +176,12 @@ const RestaurantDashboard = () => {
             <h2>Application Under Review</h2>
             <p>Your restaurant profile is being reviewed by our admin team.</p>
             <p>You will be notified once approved.</p>
+            <div className={styles.restaurantInfo}>
+              <p><strong>Restaurant Name:</strong> {restaurant.full_name}</p>
+              <p><strong>Address:</strong> {restaurant.address}</p>
+              <p><strong>Email:</strong> {restaurant.email}</p>
+              {restaurant.phone && <p><strong>Phone:</strong> {restaurant.phone}</p>}
+            </div>
           </div>
         </main>
         <BottomNav />
@@ -395,7 +189,7 @@ const RestaurantDashboard = () => {
     );
   }
 
-  if (restaurant.status === 'rejected') {
+  if (!restaurant.is_active) {
     return (
       <div className="page-container">
         <Header />
@@ -403,9 +197,7 @@ const RestaurantDashboard = () => {
           <div className={styles.rejectedContainer}>
             <h2>Application Rejected</h2>
             <p>Unfortunately, your restaurant application was not approved.</p>
-            {restaurant.rejection_reason && (
-              <p className={styles.rejectionReason}>Reason: {restaurant.rejection_reason}</p>
-            )}
+            <p>Please contact support for more information.</p>
           </div>
         </main>
         <BottomNav />

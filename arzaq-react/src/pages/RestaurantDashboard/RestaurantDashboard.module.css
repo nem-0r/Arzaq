@@ -213,6 +213,25 @@
   margin-bottom: 1rem;
 }
 
+.restaurantInfo {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background-color: #f9fafb;
+  border-radius: 8px;
+  text-align: left;
+}
+
+.restaurantInfo p {
+  margin: 0.75rem 0;
+  color: #374151;
+  font-size: 0.95rem;
+}
+
+.restaurantInfo p strong {
+  color: #1a1a1a;
+  font-weight: 600;
+}
+
 .rejectionReason {
   margin-top: 1rem;
   padding: 1rem;
