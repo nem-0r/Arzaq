@@ -37,10 +37,17 @@ export const API_ENDPOINTS = {
   },
 };
 
-// API Base URL (из переменных окружения)
-let baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+// Production и Development URL
+const PRODUCTION_API_URL = 'https://arzaq-production.up.railway.app';
+const DEVELOPMENT_API_URL = 'http://localhost:8000';
 
-// ВАЖНО: Принудительно заменяем http:// на https:// для production
+// Определяем режим (development или production)
+const isDevelopment = import.meta.env.MODE === 'development';
+
+// Получаем базовый URL: приоритет env переменной, затем production/development URL
+let baseUrl = import.meta.env.VITE_API_URL || (isDevelopment ? DEVELOPMENT_API_URL : PRODUCTION_API_URL);
+
+// ВАЖНО: Принудительно заменяем http:// на https:// для Railway URL
 if (baseUrl.includes('railway.app') && baseUrl.startsWith('http://')) {
   baseUrl = baseUrl.replace('http://', 'https://');
 }

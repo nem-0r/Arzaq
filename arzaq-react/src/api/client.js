@@ -1,15 +1,23 @@
 // src/api/client.js
 import axios from 'axios';
 
-// Получаем базовый URL из переменных окружения
-let API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+// Production и Development URL
+const PRODUCTION_API_URL = 'https://arzaq-production.up.railway.app';
+const DEVELOPMENT_API_URL = 'http://localhost:8000';
 
-// ВАЖНО: Принудительно заменяем http:// на https:// для production
+// Определяем режим (development или production)
+const isDevelopment = import.meta.env.MODE === 'development';
+
+// Получаем базовый URL: приоритет env переменной, затем production/development URL
+let API_BASE_URL = import.meta.env.VITE_API_URL || (isDevelopment ? DEVELOPMENT_API_URL : PRODUCTION_API_URL);
+
+// ВАЖНО: Принудительно заменяем http:// на https:// для Railway URL
 if (API_BASE_URL.includes('railway.app') && API_BASE_URL.startsWith('http://')) {
   API_BASE_URL = API_BASE_URL.replace('http://', 'https://');
 }
 
 // DEBUG: Показываем какой API URL используется
+console.log('🔧 MODE:', import.meta.env.MODE);
 console.log('🔧 API_BASE_URL:', API_BASE_URL);
 console.log('🔧 VITE_API_URL from env:', import.meta.env.VITE_API_URL);
 

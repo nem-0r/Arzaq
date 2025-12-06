@@ -1,8 +1,15 @@
 // src/services/api.js
 // API Service Layer - Ready for Backend Integration
 
+// Production и Development URL
+const PRODUCTION_API_URL = 'https://arzaq-production.up.railway.app';
+const DEVELOPMENT_API_URL = 'http://localhost:8000';
+
+// Определяем режим (development или production)
+const isDevelopment = import.meta.env.MODE === 'development';
+
 // eslint-disable-next-line no-unused-vars
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_BASE_URL = import.meta.env.VITE_API_URL || (isDevelopment ? DEVELOPMENT_API_URL : PRODUCTION_API_URL);
 
 // Helper function to get auth token
 // eslint-disable-next-line no-unused-vars
