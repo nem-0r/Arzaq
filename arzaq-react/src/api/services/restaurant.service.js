@@ -68,7 +68,7 @@ const restaurantService = {
    * @returns {Promise<Object>} Updated restaurant
    */
   approveRestaurant: async (id) => {
-    const response = await apiClient.post(`/api/restaurants/${id}/approve`);
+    const response = await apiClient.put(`/api/restaurants/${id}/approve`);
     return response.data;
   },
 
@@ -79,7 +79,7 @@ const restaurantService = {
    * @returns {Promise<Object>} Response
    */
   rejectRestaurant: async (id, reason) => {
-    const response = await apiClient.post(`/api/restaurants/${id}/reject`, { reason });
+    const response = await apiClient.put(`/api/restaurants/${id}/reject`, { reason });
     return response.data;
   },
 
