@@ -2,59 +2,66 @@
 import React, { useState, useEffect } from 'react';
 import Header from '../../components/layout/Header/Header';
 import BottomNav from '../../components/layout/BottomNav/BottomNav';
-import { restaurantService } from '../../api/services';
-import { useTranslation } from '../../hooks/useTranslation';
+import { restaurantProfileService } from '../../api/services';
+import { IoCheckmarkCircle, IoCloseCircle, IoRestaurant } from 'react-icons/io5';
 import styles from './AdminDashboard.module.css';
 
 const AdminDashboard = () => {
-  const { t } = useTranslation();
-  const [pendingRestaurants, setPendingRestaurants] = useState([]);
+  const [pendingProfiles, setPendingProfiles] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Load pending restaurants
   useEffect(() => {
-    loadPendingRestaurants();
+    loadPendingProfiles();
   }, []);
 
-  const loadPendingRestaurants = async () => {
+  const loadPendingProfiles = async () => {
     try {
       setIsLoading(true);
-      const data = await restaurantService.getPendingRestaurants();
-      setPendingRestaurants(data);
+      setError(null);
+      const data = await restaurantProfileService.getPendingProfiles();
+      setPendingProfiles(data);
     } catch (err) {
-      setError('Failed to load pending restaurants');
+      setError('Failed to load pending restaurant profiles');
       console.error(err);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleApprove = async (restaurantId) => {
-    if (!window.confirm('Are you sure you want to approve this restaurant?')) {
+  const handleApprove = async (profileId) => {
+    if (!window.confirm('Are you sure you want to approve this restaurant profile?')) {
       return;
     }
 
     try {
-      await restaurantService.approveRestaurant(restaurantId);
-      alert('Restaurant approved successfully!');
-      loadPendingRestaurants();
+      await restaurantProfileService.approveProfile(profileId);
+      alert('Restaurant profile approved successfully!');
+      loadPendingProfiles();
     } catch (err) {
-      alert('Failed to approve restaurant');
+      alert('Failed to approve restaurant profile');
       console.error(err);
     }
   };
 
-  const handleReject = async (restaurantId) => {
-    const reason = window.prompt('Please provide a reason for rejection:');
+  const handleReject = async (profileId) => {
+    const reason = window.prompt(
+      'Please provide a detailed reason for rejection (minimum 10 characters):'
+    );
+
     if (!reason) return;
 
+    if (reason.trim().length < 10) {
+      alert('Rejection reason must be at least 10 characters');
+      return;
+    }
+
     try {
-      await restaurantService.rejectRestaurant(restaurantId, reason);
-      alert('Restaurant rejected');
-      loadPendingRestaurants();
+      await restaurantProfileService.rejectProfile(profileId, reason);
+      alert('Restaurant profile rejected');
+      loadPendingProfiles();
     } catch (err) {
-      alert('Failed to reject restaurant');
+      alert('Failed to reject restaurant profile');
       console.error(err);
     }
   };
@@ -65,52 +72,104 @@ const AdminDashboard = () => {
 
       <main id="main-content" className="main-content">
         <div className={styles.dashboardContainer}>
-          <h1 className={styles.title}>Admin Dashboard</h1>
-          <p className={styles.subtitle}>Review and approve restaurant applications</p>
+          <div className={styles.dashboardHeader}>
+            <h1 className={styles.title}>Admin Dashboard</h1>
+            <p className={styles.subtitle}>Review and approve restaurant applications</p>
+          </div>
 
-          {isLoading && <p className={styles.loading}>Loading...</p>}
-          {error && <p className={styles.error}>{error}</p>}
-
-          {!isLoading && pendingRestaurants.length === 0 && (
-            <div className={styles.emptyState}>
-              <p>No pending restaurants to review</p>
+          {isLoading && (
+            <div className={styles.loading}>
+              <div className={styles.spinner}></div>
+              <p>Loading pending applications...</p>
             </div>
           )}
 
-          <div className={styles.restaurantsList}>
-            {pendingRestaurants.map((restaurant) => (
-              <div key={restaurant.id} className={styles.restaurantCard}>
-                <div className={styles.restaurantInfo}>
-                  <h3 className={styles.restaurantName}>{restaurant.name}</h3>
-                  <p className={styles.restaurantAddress}>{restaurant.address}</p>
-                  <p className={styles.restaurantPhone}>
-                    <strong>Phone:</strong> {restaurant.phone}
-                  </p>
-                  <p className={styles.restaurantEmail}>
-                    <strong>Email:</strong> {restaurant.email}
-                  </p>
-                  {restaurant.description && (
-                    <p className={styles.restaurantDescription}>
-                      {restaurant.description}
-                    </p>
+          {error && (
+            <div className={styles.error}>
+              <p>{error}</p>
+              <button onClick={loadPendingProfiles} className={styles.retryBtn}>
+                Retry
+              </button>
+            </div>
+          )}
+
+          {!isLoading && !error && pendingProfiles.length === 0 && (
+            <div className={styles.emptyState}>
+              <IoRestaurant className={styles.emptyIcon} />
+              <h3>No Pending Applications</h3>
+              <p>There are no restaurant profiles awaiting approval at this time.</p>
+            </div>
+          )}
+
+          <div className={styles.profilesList}>
+            {pendingProfiles.map((profile) => (
+              <div key={profile.id} className={styles.profileCard}>
+                <div className={styles.profileHeader}>
+                  <div className={styles.profileTitleSection}>
+                    <h3 className={styles.profileName}>{profile.name}</h3>
+                    <span className={styles.profileBadge}>Pending</span>
+                  </div>
+                  <div className={styles.profileDate}>
+                    Submitted: {new Date(profile.created_at).toLocaleDateString()}
+                  </div>
+                </div>
+
+                <div className={styles.profileInfo}>
+                  <div className={styles.infoRow}>
+                    <strong>Address:</strong>
+                    <span>{profile.address}</span>
+                  </div>
+
+                  {profile.phone && (
+                    <div className={styles.infoRow}>
+                      <strong>Phone:</strong>
+                      <span>{profile.phone}</span>
+                    </div>
                   )}
-                  <p className={styles.submittedAt}>
-                    <strong>Submitted:</strong> {new Date(restaurant.created_at).toLocaleDateString()}
-                  </p>
+
+                  {profile.user_email && (
+                    <div className={styles.infoRow}>
+                      <strong>Email:</strong>
+                      <span>{profile.user_email}</span>
+                    </div>
+                  )}
+
+                  {profile.user_full_name && (
+                    <div className={styles.infoRow}>
+                      <strong>Owner:</strong>
+                      <span>{profile.user_full_name}</span>
+                    </div>
+                  )}
+
+                  {profile.description && (
+                    <div className={styles.infoRow}>
+                      <strong>Description:</strong>
+                      <p className={styles.description}>{profile.description}</p>
+                    </div>
+                  )}
+
+                  {profile.latitude && profile.longitude && (
+                    <div className={styles.infoRow}>
+                      <strong>Location:</strong>
+                      <span>
+                        {profile.latitude.toFixed(6)}, {profile.longitude.toFixed(6)}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 <div className={styles.actions}>
                   <button
                     className={styles.approveBtn}
-                    onClick={() => handleApprove(restaurant.id)}
+                    onClick={() => handleApprove(profile.id)}
                   >
-                    Approve
+                    <IoCheckmarkCircle /> Approve
                   </button>
                   <button
                     className={styles.rejectBtn}
-                    onClick={() => handleReject(restaurant.id)}
+                    onClick={() => handleReject(profile.id)}
                   >
-                    Reject
+                    <IoCloseCircle /> Reject
                   </button>
                 </div>
               </div>

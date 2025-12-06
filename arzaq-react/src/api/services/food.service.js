@@ -49,7 +49,7 @@ const foodService = {
    * @returns {Promise<Array>} List of food items
    */
   getMyFoods: async () => {
-    const response = await apiClient.get('/api/foods/me');
+    const response = await apiClient.get('/api/foods/my-foods');
     return response.data;
   },
 
@@ -77,11 +77,11 @@ const foodService = {
   /**
    * Upload food image
    * @param {File} file - Image file
-   * @returns {Promise<Object>} Upload result with URL
+   * @returns {Promise<Object>} Upload result with image_url
    */
   uploadImage: async (file) => {
     const formData = new FormData();
-    formData.append('image', file);
+    formData.append('file', file);
 
     const response = await apiClient.post('/api/foods/upload-image', formData, {
       headers: {

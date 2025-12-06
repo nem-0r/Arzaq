@@ -3,16 +3,28 @@ import React, { useState, useEffect } from 'react';
 import Header from '../../components/layout/Header/Header';
 import BottomNav from '../../components/layout/BottomNav/BottomNav';
 import ImageUpload from '../../components/common/ImageUpload/ImageUpload';
-import { restaurantService, foodService } from '../../api/services';
-import { IoAdd, IoRestaurant, IoTrash } from 'react-icons/io5';
+import { restaurantProfileService, foodService } from '../../api/services';
+import { IoAdd, IoRestaurant, IoTrash, IoCheckmarkCircle, IoCloseCircle, IoTime } from 'react-icons/io5';
 import styles from './RestaurantDashboard.module.css';
 
 const RestaurantDashboard = () => {
-  const [restaurant, setRestaurant] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const [profileExists, setProfileExists] = useState(false);
   const [foods, setFoods] = useState([]);
   const [showFoodForm, setShowFoodForm] = useState(false);
+  const [showProfileForm, setShowProfileForm] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Profile Form State
+  const [profileData, setProfileData] = useState({
+    name: '',
+    description: '',
+    address: '',
+    phone: '',
+    latitude: null,
+    longitude: null
+  });
 
   // Food Form State
   const [foodData, setFoodData] = useState({
@@ -34,21 +46,50 @@ const RestaurantDashboard = () => {
     try {
       setIsLoading(true);
 
-      const restaurantData = await restaurantService.getMyRestaurant();
-      setRestaurant(restaurantData);
+      // Try to get profile
+      try {
+        const profileData = await restaurantProfileService.getMyProfile();
+        setProfile(profileData);
+        setProfileExists(true);
 
-      // Only load foods if restaurant is approved
-      if (restaurantData && restaurantData.is_approved) {
-        const foodsData = await foodService.getMyFoods();
-        setFoods(foodsData);
+        // Only load foods if profile is approved
+        if (profileData.status === 'approved') {
+          const foodsData = await foodService.getMyFoods();
+          setFoods(foodsData);
+        }
+      } catch (err) {
+        if (err.response?.status === 404) {
+          // Profile not found - need to create
+          setProfileExists(false);
+          setShowProfileForm(true);
+        } else {
+          throw err;
+        }
       }
     } catch (err) {
-      console.error('Error loading restaurant:', err);
-
-      // Show user-friendly error message
-      alert('Failed to load restaurant data. Please ensure you are logged in with a restaurant account.');
+      console.error('Error loading restaurant data:', err);
+      alert('Failed to load restaurant data. Please try again.');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleProfileSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      const newProfile = await restaurantProfileService.createProfile(profileData);
+      setProfile(newProfile);
+      setProfileExists(true);
+      setShowProfileForm(false);
+      alert('Restaurant profile created! Waiting for admin approval.');
+    } catch (err) {
+      console.error('Error creating profile:', err);
+      const errorMessage = err.response?.data?.detail || 'Failed to create profile. Please try again.';
+      alert(errorMessage);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -62,32 +103,28 @@ const RestaurantDashboard = () => {
       // Upload image if provided
       if (foodData.image) {
         const uploadResult = await foodService.uploadImage(foodData.image);
-        imageUrl = uploadResult.url;
+        imageUrl = uploadResult.image_url;
       }
 
-      // Create food item with image URL
+      // Create food item
       await foodService.createFood({
         name: foodData.name,
         description: foodData.description,
         price: parseFloat(foodData.price),
-        oldPrice: parseFloat(foodData.oldPrice),
-        discount: parseInt(foodData.discount),
+        old_price: parseFloat(foodData.oldPrice),
+        discount: parseInt(foodData.discount) || null,
         quantity: parseInt(foodData.quantity),
-        expiresAt: foodData.expiresAt,
-        image: imageUrl,
-        restaurant_id: restaurant.id
+        expires_at: foodData.expiresAt,
+        image: imageUrl
       });
 
       alert('Food item added successfully!');
       setShowFoodForm(false);
       resetFoodForm();
-
-      // Reload data to show new food item
       await loadRestaurantData();
     } catch (err) {
       console.error('Error adding food item:', err);
-
-      const errorMessage = err.response?.data?.message || 'Failed to add food item. Please try again.';
+      const errorMessage = err.response?.data?.detail || 'Failed to add food item. Please try again.';
       alert(errorMessage);
     } finally {
       setIsSubmitting(false);
@@ -100,13 +137,10 @@ const RestaurantDashboard = () => {
     try {
       await foodService.deleteFood(foodId);
       alert('Food item deleted successfully!');
-
-      // Reload data to reflect deletion
       await loadRestaurantData();
     } catch (err) {
       console.error('Error deleting food item:', err);
-
-      const errorMessage = err.response?.data?.message || 'Failed to delete food item. Please try again.';
+      const errorMessage = err.response?.data?.detail || 'Failed to delete food item.';
       alert(errorMessage);
     }
   };
@@ -140,7 +174,7 @@ const RestaurantDashboard = () => {
         <main id="main-content" className="main-content">
           <div className={styles.loading}>
             <div className={styles.spinner}></div>
-            <p>Loading restaurant data...</p>
+            <p>Loading...</p>
           </div>
         </main>
         <BottomNav />
@@ -148,16 +182,70 @@ const RestaurantDashboard = () => {
     );
   }
 
-  if (!restaurant) {
+  // Profile Creation Form
+  if (!profileExists || showProfileForm) {
     return (
       <div className="page-container">
         <Header />
         <main id="main-content" className="main-content">
           <div className={styles.container}>
-            <h1>Restaurant Not Found</h1>
-            <p className={styles.subtitle}>
-              Please register as a restaurant to access this page.
-            </p>
+            <div className={styles.formHeader}>
+              <IoRestaurant className={styles.formIcon} />
+              <h1>Create Restaurant Profile</h1>
+              <p>Tell us about your restaurant to get started</p>
+            </div>
+
+            <form onSubmit={handleProfileSubmit} className={styles.profileForm}>
+              <div className={styles.formGroup}>
+                <label>Restaurant Name *</label>
+                <input
+                  type="text"
+                  value={profileData.name}
+                  onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
+                  required
+                  placeholder="e.g., Tasty Kitchen"
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label>Address *</label>
+                <input
+                  type="text"
+                  value={profileData.address}
+                  onChange={(e) => setProfileData({ ...profileData, address: e.target.value })}
+                  required
+                  placeholder="Full address"
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label>Phone Number</label>
+                <input
+                  type="tel"
+                  value={profileData.phone}
+                  onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
+                  placeholder="+7 XXX XXX XX XX"
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label>Description</label>
+                <textarea
+                  value={profileData.description}
+                  onChange={(e) => setProfileData({ ...profileData, description: e.target.value })}
+                  rows={4}
+                  placeholder="Tell us about your restaurant..."
+                />
+              </div>
+
+              <button
+                type="submit"
+                className={styles.submitBtn}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 'Creating...' : 'Create Profile'}
+              </button>
+            </form>
           </div>
         </main>
         <BottomNav />
@@ -165,22 +253,24 @@ const RestaurantDashboard = () => {
     );
   }
 
-  // Check restaurant approval status
-  if (!restaurant.is_approved && restaurant.is_active) {
+  // Pending Approval Status
+  if (profile.status === 'pending') {
     return (
       <div className="page-container">
         <Header />
         <main id="main-content" className="main-content">
-          <div className={styles.pendingContainer}>
-            <IoRestaurant className={styles.pendingIcon} />
+          <div className={styles.statusContainer}>
+            <IoTime className={`${styles.statusIcon} ${styles.pending}`} />
             <h2>Application Under Review</h2>
             <p>Your restaurant profile is being reviewed by our admin team.</p>
             <p>You will be notified once approved.</p>
-            <div className={styles.restaurantInfo}>
-              <p><strong>Restaurant Name:</strong> {restaurant.full_name}</p>
-              <p><strong>Address:</strong> {restaurant.address}</p>
-              <p><strong>Email:</strong> {restaurant.email}</p>
-              {restaurant.phone && <p><strong>Phone:</strong> {restaurant.phone}</p>}
+
+            <div className={styles.profileInfo}>
+              <h3>Submitted Information:</h3>
+              <p><strong>Restaurant Name:</strong> {profile.name}</p>
+              <p><strong>Address:</strong> {profile.address}</p>
+              {profile.phone && <p><strong>Phone:</strong> {profile.phone}</p>}
+              {profile.description && <p><strong>Description:</strong> {profile.description}</p>}
             </div>
           </div>
         </main>
@@ -189,15 +279,27 @@ const RestaurantDashboard = () => {
     );
   }
 
-  if (!restaurant.is_active) {
+  // Rejected Status
+  if (profile.status === 'rejected') {
     return (
       <div className="page-container">
         <Header />
         <main id="main-content" className="main-content">
-          <div className={styles.rejectedContainer}>
+          <div className={styles.statusContainer}>
+            <IoCloseCircle className={`${styles.statusIcon} ${styles.rejected}`} />
             <h2>Application Rejected</h2>
             <p>Unfortunately, your restaurant application was not approved.</p>
-            <p>Please contact support for more information.</p>
+
+            {profile.rejection_reason && (
+              <div className={styles.rejectionReason}>
+                <h3>Reason:</h3>
+                <p>{profile.rejection_reason}</p>
+              </div>
+            )}
+
+            <p className={styles.contactMessage}>
+              Please contact support for more information or to resubmit your application.
+            </p>
           </div>
         </main>
         <BottomNav />
@@ -205,6 +307,7 @@ const RestaurantDashboard = () => {
     );
   }
 
+  // Approved - Main Dashboard
   return (
     <div className="page-container">
       <Header />
@@ -212,9 +315,12 @@ const RestaurantDashboard = () => {
       <main id="main-content" className="main-content">
         <div className={styles.container}>
           <div className={styles.header}>
-            <div>
-              <h1>{restaurant.name}</h1>
-              <p className={styles.address}>{restaurant.address}</p>
+            <div className={styles.headerInfo}>
+              <div className={styles.approvedBadge}>
+                <IoCheckmarkCircle /> Approved
+              </div>
+              <h1>{profile.name}</h1>
+              <p className={styles.address}>{profile.address}</p>
             </div>
             <button
               className={styles.addBtn}
@@ -231,7 +337,7 @@ const RestaurantDashboard = () => {
 
                 <form onSubmit={handleFoodSubmit} className={styles.form}>
                   <div className={styles.formGroup}>
-                    <label>Food Photo *</label>
+                    <label>Food Photo</label>
                     <ImageUpload
                       onImageSelect={(file) => setFoodData({ ...foodData, image: file })}
                       onImageRemove={() => setFoodData({ ...foodData, image: null })}
@@ -264,9 +370,7 @@ const RestaurantDashboard = () => {
                         type="number"
                         step="0.01"
                         value={foodData.oldPrice}
-                        onChange={(e) => {
-                          setFoodData({ ...foodData, oldPrice: e.target.value });
-                        }}
+                        onChange={(e) => setFoodData({ ...foodData, oldPrice: e.target.value })}
                         onBlur={calculateDiscount}
                         required
                       />
@@ -278,9 +382,7 @@ const RestaurantDashboard = () => {
                         type="number"
                         step="0.01"
                         value={foodData.price}
-                        onChange={(e) => {
-                          setFoodData({ ...foodData, price: e.target.value });
-                        }}
+                        onChange={(e) => setFoodData({ ...foodData, price: e.target.value })}
                         onBlur={calculateDiscount}
                         required
                       />
@@ -353,8 +455,8 @@ const RestaurantDashboard = () => {
                     <p className={styles.foodDesc}>{food.description}</p>
                     <div className={styles.foodPrice}>
                       <span className={styles.newPrice}>₸{food.price}</span>
-                      {food.oldPrice && (
-                        <span className={styles.oldPrice}>₸{food.oldPrice}</span>
+                      {food.old_price && (
+                        <span className={styles.oldPrice}>₸{food.old_price}</span>
                       )}
                       {food.discount && (
                         <span className={styles.discount}>{food.discount}% OFF</span>
