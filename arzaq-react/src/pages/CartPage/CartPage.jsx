@@ -1,5 +1,5 @@
 // src/pages/CartPage/CartPage.jsx
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../hooks/useAuth';
@@ -29,26 +29,14 @@ const CartPage = () => {
     clearCart,
   } = useCart();
 
-  const [showCheckoutModal, setShowCheckoutModal] = useState(false);
-  const [orderPlaced, setOrderPlaced] = useState(false);
-
   const handleCheckout = () => {
     if (!currentUser) {
-      // Show login prompt if not authenticated
+      // Redirect to login
+      navigate('/login');
       return;
     }
-    setShowCheckoutModal(true);
-  };
-
-  const handleConfirmOrder = () => {
-    // Here you would integrate with payment gateway
-    setOrderPlaced(true);
-    setTimeout(() => {
-      clearCart();
-      setShowCheckoutModal(false);
-      setOrderPlaced(false);
-      navigate('/');
-    }, 2000);
+    // Navigate to checkout page
+    navigate('/checkout');
   };
 
   // Show empty cart if no items
@@ -157,57 +145,6 @@ const CartPage = () => {
           {t('cart_checkout')} • {formatPrice(total)}
         </button>
       </div>
-
-      {/* Checkout Modal */}
-      {showCheckoutModal && (
-        <div className={styles.modalOverlay} onClick={() => !orderPlaced && setShowCheckoutModal(false)}>
-          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-            {!orderPlaced ? (
-              <>
-                <h3 className={styles.modalTitle}>{t('cart_confirm_order')}</h3>
-                <p className={styles.modalText}>{t('cart_confirm_message')}</p>
-
-                <div className={styles.modalTotal}>
-                  <span>{t('cart_total')}</span>
-                  <span className={styles.modalTotalAmount}>{formatPrice(total)}</span>
-                </div>
-
-                <div className={styles.modalActions}>
-                  <button
-                    className={styles.cancelBtn}
-                    onClick={() => setShowCheckoutModal(false)}
-                  >
-                    {t('cart_cancel')}
-                  </button>
-                  <button
-                    className={styles.confirmBtn}
-                    onClick={handleConfirmOrder}
-                  >
-                    {t('cart_confirm')}
-                  </button>
-                </div>
-              </>
-            ) : (
-              <div className={styles.successMessage}>
-                <div className={styles.successIcon}>
-                  <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
-                    <circle cx="32" cy="32" r="32" fill="#22C55E" />
-                    <path
-                      d="M20 32L28 40L44 24"
-                      stroke="white"
-                      strokeWidth="4"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </div>
-                <h3 className={styles.successTitle}>{t('cart_order_success')}</h3>
-                <p className={styles.successText}>{t('cart_order_success_message')}</p>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
 
       <BottomNav />
     </div>

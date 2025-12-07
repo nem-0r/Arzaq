@@ -37,7 +37,7 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated }) => {
 
   const loadRestaurants = async () => {
     try {
-      const restaurantsData = await restaurantService.getAllRestaurants({ status: 'approved' });
+      const restaurantsData = await restaurantService.getAllRestaurants({ approved_only: true });
       setRestaurants(restaurantsData || []);
     } catch (error) {
       console.error('Failed to load restaurants:', error);
@@ -48,7 +48,7 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated }) => {
   const searchRestaurants = async (query) => {
     try {
       const restaurantsData = await restaurantService.getAllRestaurants({
-        status: 'approved',
+        approved_only: true,
         search: query
       });
       setRestaurants(restaurantsData || []);
@@ -77,10 +77,10 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated }) => {
     setFormData({
       ...formData,
       restaurantId: restaurant.id,
-      restaurantName: restaurant.restaurant_name || restaurant.full_name,
+      restaurantName: restaurant.full_name,
       restaurantAddress: restaurant.address
     });
-    setSearchQuery(restaurant.restaurant_name || restaurant.full_name);
+    setSearchQuery(restaurant.full_name);
     setShowRestaurantDropdown(false);
   };
 
@@ -273,7 +273,7 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated }) => {
                       onClick={() => handleRestaurantSelect(restaurant)}
                     >
                       <div className={styles.restaurantName}>
-                        {restaurant.restaurant_name || restaurant.full_name}
+                        {restaurant.full_name}
                       </div>
                       <div className={styles.restaurantAddress}>{restaurant.address}</div>
                     </div>

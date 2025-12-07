@@ -13,3 +13,5 @@ export { default as impactService } from './impact.service';
 export { default as notificationService } from './notification.service';
 export { default as likeService } from './like.service';
 export { default as uploadService } from './upload.service';
+export { default as orderService } from './order.service';
+export { default as paymentService } from './payment.service';

@@ -15,7 +15,7 @@ const uploadService = {
       const formData = new FormData();
       formData.append('file', file);
 
-      const response = await apiClient.post('/api/upload/image', formData, {
+      const response = await apiClient.post('/api/posts/upload-image', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
