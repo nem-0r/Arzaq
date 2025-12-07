@@ -49,7 +49,7 @@ const foodService = {
    * @returns {Promise<Array>} List of food items
    */
   getMyFoods: async () => {
-    const response = await apiClient.get('/api/foods/my-foods');
+    const response = await apiClient.get('/api/foods/me');
     return response.data;
   },
 
