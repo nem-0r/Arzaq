@@ -46,25 +46,17 @@ const RestaurantDashboard = () => {
     try {
       setIsLoading(true);
 
-      // Try to get profile
-      try {
-        const profileData = await restaurantProfileService.getMyProfile();
-        setProfile(profileData);
-        setProfileExists(true);
+      // Get current user (which IS the restaurant profile)
+      const { authService } = await import('../../api/services');
+      const userData = await authService.getCurrentUser();
 
-        // Only load foods if profile is approved
-        if (profileData.status === 'approved') {
-          const foodsData = await foodService.getMyFoods();
-          setFoods(foodsData);
-        }
-      } catch (err) {
-        if (err.response?.status === 404) {
-          // Profile not found - need to create
-          setProfileExists(false);
-          setShowProfileForm(true);
-        } else {
-          throw err;
-        }
+      setProfile(userData);
+      setProfileExists(true);
+
+      // Only load foods if profile is approved
+      if (userData.is_approved) {
+        const foodsData = await foodService.getMyFoods();
+        setFoods(foodsData);
       }
     } catch (err) {
       console.error('Error loading restaurant data:', err);
@@ -79,14 +71,14 @@ const RestaurantDashboard = () => {
     setIsSubmitting(true);
 
     try {
-      const newProfile = await restaurantProfileService.createProfile(profileData);
-      setProfile(newProfile);
+      const updatedProfile = await restaurantProfileService.updateMyProfile(profileData);
+      setProfile(updatedProfile);
       setProfileExists(true);
       setShowProfileForm(false);
-      alert('Restaurant profile created! Waiting for admin approval.');
+      alert('Restaurant profile updated! Waiting for admin approval.');
     } catch (err) {
-      console.error('Error creating profile:', err);
-      const errorMessage = err.response?.data?.detail || 'Failed to create profile. Please try again.';
+      console.error('Error updating profile:', err);
+      const errorMessage = err.response?.data?.detail || 'Failed to update profile. Please try again.';
       alert(errorMessage);
     } finally {
       setIsSubmitting(false);
@@ -182,79 +174,8 @@ const RestaurantDashboard = () => {
     );
   }
 
-  // Profile Creation Form
-  if (!profileExists || showProfileForm) {
-    return (
-      <div className="page-container">
-        <Header />
-        <main id="main-content" className="main-content">
-          <div className={styles.container}>
-            <div className={styles.formHeader}>
-              <IoRestaurant className={styles.formIcon} />
-              <h1>Create Restaurant Profile</h1>
-              <p>Tell us about your restaurant to get started</p>
-            </div>
-
-            <form onSubmit={handleProfileSubmit} className={styles.profileForm}>
-              <div className={styles.formGroup}>
-                <label>Restaurant Name *</label>
-                <input
-                  type="text"
-                  value={profileData.name}
-                  onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
-                  required
-                  placeholder="e.g., Tasty Kitchen"
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label>Address *</label>
-                <input
-                  type="text"
-                  value={profileData.address}
-                  onChange={(e) => setProfileData({ ...profileData, address: e.target.value })}
-                  required
-                  placeholder="Full address"
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label>Phone Number</label>
-                <input
-                  type="tel"
-                  value={profileData.phone}
-                  onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
-                  placeholder="+7 XXX XXX XX XX"
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label>Description</label>
-                <textarea
-                  value={profileData.description}
-                  onChange={(e) => setProfileData({ ...profileData, description: e.target.value })}
-                  rows={4}
-                  placeholder="Tell us about your restaurant..."
-                />
-              </div>
-
-              <button
-                type="submit"
-                className={styles.submitBtn}
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? 'Creating...' : 'Create Profile'}
-              </button>
-            </form>
-          </div>
-        </main>
-        <BottomNav />
-      </div>
-    );
-  }
-
   // Pending Approval Status
-  if (profile.status === 'pending') {
+  if (!profile.is_approved) {
     return (
       <div className="page-container">
         <Header />
@@ -267,39 +188,12 @@ const RestaurantDashboard = () => {
 
             <div className={styles.profileInfo}>
               <h3>Submitted Information:</h3>
-              <p><strong>Restaurant Name:</strong> {profile.name}</p>
-              <p><strong>Address:</strong> {profile.address}</p>
+              <p><strong>Restaurant Name:</strong> {profile.full_name}</p>
+              <p><strong>Email:</strong> {profile.email}</p>
+              <p><strong>Address:</strong> {profile.address || 'Not provided'}</p>
               {profile.phone && <p><strong>Phone:</strong> {profile.phone}</p>}
               {profile.description && <p><strong>Description:</strong> {profile.description}</p>}
             </div>
-          </div>
-        </main>
-        <BottomNav />
-      </div>
-    );
-  }
-
-  // Rejected Status
-  if (profile.status === 'rejected') {
-    return (
-      <div className="page-container">
-        <Header />
-        <main id="main-content" className="main-content">
-          <div className={styles.statusContainer}>
-            <IoCloseCircle className={`${styles.statusIcon} ${styles.rejected}`} />
-            <h2>Application Rejected</h2>
-            <p>Unfortunately, your restaurant application was not approved.</p>
-
-            {profile.rejection_reason && (
-              <div className={styles.rejectionReason}>
-                <h3>Reason:</h3>
-                <p>{profile.rejection_reason}</p>
-              </div>
-            )}
-
-            <p className={styles.contactMessage}>
-              Please contact support for more information or to resubmit your application.
-            </p>
           </div>
         </main>
         <BottomNav />
@@ -319,8 +213,8 @@ const RestaurantDashboard = () => {
               <div className={styles.approvedBadge}>
                 <IoCheckmarkCircle /> Approved
               </div>
-              <h1>{profile.name}</h1>
-              <p className={styles.address}>{profile.address}</p>
+              <h1>{profile.full_name}</h1>
+              <p className={styles.address}>{profile.address || 'No address set'}</p>
             </div>
             <button
               className={styles.addBtn}

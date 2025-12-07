@@ -3,31 +3,12 @@ import client from '../client';
 
 const restaurantProfileService = {
   /**
-   * Create restaurant profile
-   * @param {Object} profileData - Restaurant profile data
-   * @returns {Promise<Object>} Created profile
-   */
-  createProfile: async (profileData) => {
-    const response = await client.post('/restaurant-profiles/', profileData);
-    return response.data;
-  },
-
-  /**
-   * Get current restaurant's profile
-   * @returns {Promise<Object>} Restaurant profile
-   */
-  getMyProfile: async () => {
-    const response = await client.get('/restaurant-profiles/my-profile');
-    return response.data;
-  },
-
-  /**
-   * Update current restaurant's profile
+   * Update current restaurant's profile via /api/auth/me
    * @param {Object} profileData - Updated profile data
    * @returns {Promise<Object>} Updated profile
    */
   updateMyProfile: async (profileData) => {
-    const response = await client.put('/restaurant-profiles/my-profile', profileData);
+    const response = await client.put('/api/auth/me', profileData);
     return response.data;
   },
 
@@ -37,7 +18,7 @@ const restaurantProfileService = {
    * @returns {Promise<Array>} List of restaurant profiles
    */
   getAllProfiles: async (params = {}) => {
-    const response = await client.get('/restaurant-profiles/', { params });
+    const response = await client.get('/api/restaurants/', { params });
     return response.data;
   },
 
@@ -47,7 +28,7 @@ const restaurantProfileService = {
    * @returns {Promise<Object>} Restaurant profile
    */
   getProfileById: async (profileId) => {
-    const response = await client.get(`/restaurant-profiles/${profileId}`);
+    const response = await client.get(`/api/restaurants/${profileId}`);
     return response.data;
   },
 
@@ -56,7 +37,7 @@ const restaurantProfileService = {
    * @returns {Promise<Array>} List of pending profiles
    */
   getPendingProfiles: async () => {
-    const response = await client.get('/restaurant-profiles/pending');
+    const response = await client.get('/api/restaurants/pending');
     return response.data;
   },
 
@@ -66,7 +47,7 @@ const restaurantProfileService = {
    * @returns {Promise<Object>} Approved profile
    */
   approveProfile: async (profileId) => {
-    const response = await client.put(`/restaurant-profiles/${profileId}/approve`);
+    const response = await client.put(`/api/restaurants/${profileId}/approve`);
     return response.data;
   },
 
@@ -78,7 +59,7 @@ const restaurantProfileService = {
    */
   rejectProfile: async (profileId, rejectionReason) => {
     const response = await client.put(
-      `/restaurant-profiles/${profileId}/reject`,
+      `/api/restaurants/${profileId}/reject`,
       null,
       { params: { rejection_reason: rejectionReason } }
     );
@@ -91,7 +72,7 @@ const restaurantProfileService = {
    * @returns {Promise<void>}
    */
   deleteProfile: async (profileId) => {
-    await client.delete(`/restaurant-profiles/${profileId}`);
+    await client.delete(`/api/restaurants/${profileId}`);
   },
 };
 

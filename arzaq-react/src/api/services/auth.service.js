@@ -18,7 +18,15 @@ const authService = {
         full_name: userData.fullName,
         email: userData.email,
         password: userData.password,
+        role: userData.role || 'client', // Добавляем роль
       };
+
+      // Добавляем поля для ресторана если есть
+      if (userData.role === 'restaurant') {
+        if (userData.address) requestData.address = userData.address;
+        if (userData.phone) requestData.phone = userData.phone;
+        if (userData.description) requestData.description = userData.description;
+      }
 
       const response = await apiClient.post(API_ENDPOINTS.AUTH.REGISTER, requestData);
       return response.data;
