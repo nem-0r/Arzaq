@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 import { useTranslation } from '../../hooks/useTranslation';
 import { formatPrice } from '../../utils/currency';
 import Header from '../../components/layout/Header/Header';
