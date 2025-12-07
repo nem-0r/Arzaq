@@ -1,6 +1,4 @@
-# Dockerfile for Railway deployment
-# This file is in the root of the project and builds the arzaq-backend
-
+# Dockerfile for Railway deployment (from repo root)
 FROM python:3.11-slim
 
 # Set working directory
@@ -12,13 +10,13 @@ RUN apt-get update && apt-get install -y \
     postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements file from arzaq-backend
+# Copy requirements from backend folder
 COPY arzaq-backend/requirements.txt .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application code from arzaq-backend
+# Copy application code from backend folder
 COPY arzaq-backend/ .
 
 # Create uploads directory
@@ -28,4 +26,4 @@ RUN mkdir -p uploads/qr_codes
 EXPOSE 8000
 
 # Run the application
-CMD uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
