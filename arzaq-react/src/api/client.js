@@ -39,6 +39,16 @@ apiClient.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
 
+    // КРИТИЧЕСКИ ВАЖНО: Принудительно заменяем HTTP на HTTPS для Railway
+    // Это защита на случай если baseURL был создан с HTTP (из-за кэша или старого билда)
+    if (config.baseURL && config.baseURL.includes('railway.app') && config.baseURL.startsWith('http://')) {
+      config.baseURL = config.baseURL.replace('http://', 'https://');
+      console.warn('⚠️ Forced HTTPS replacement in interceptor:', config.baseURL);
+    }
+
+    // DEBUG: Показываем полный URL запроса
+    console.log('🔍 Request URL:', config.baseURL + config.url);
+
     return config;
   },
   (error) => {
