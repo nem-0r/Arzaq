@@ -1,4 +1,4 @@
-# Dockerfile for Railway deployment (from repo root)
+# Dockerfile for Railway deployment
 FROM python:3.11-slim
 
 # Set working directory
@@ -10,23 +10,20 @@ RUN apt-get update && apt-get install -y \
     postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements from backend folder
-COPY arzaq-backend/requirements.txt .
+
+COPY requirements.txt .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application code from backend folder
-COPY arzaq-backend/ .
+# Copy application code
+COPY . .
 
 # Create uploads directory
 RUN mkdir -p uploads/qr_codes
 
-# Make start script executable
-RUN chmod +x start.sh
-
 # Expose port (Railway will set PORT env var)
 EXPOSE 8000
 
-# Run the application with migrations
-CMD ["./start.sh"]
+# Run the application
+CMD uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}
