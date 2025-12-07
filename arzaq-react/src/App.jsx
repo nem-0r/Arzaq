@@ -2,7 +2,7 @@ import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { LanguageProvider } from './context/LanguageContext';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider } from './context/AuthContextSupabase';
 import { CartProvider } from './context/CartContext';
 import Loading from './components/common/Loading/Loading';
 import SkipLink from './components/common/SkipLink/SkipLink';

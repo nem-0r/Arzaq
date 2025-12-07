@@ -6,6 +6,7 @@ import BottomNav from '../../components/layout/BottomNav/BottomNav';
 import FoodCard from '../../components/common/FoodCard/FoodCard';
 import { restaurantService, foodService } from '../../api/services';
 import { useCart } from '../../context/CartContext';
+import { getFoodImageUrl } from '../../utils/imageUrl';
 import { IoLocationOutline, IoCallOutline, IoMailOutline, IoStar, IoArrowBack } from 'react-icons/io5';
 import styles from './RestaurantDetailsPage.module.css';
 
@@ -52,7 +53,7 @@ const RestaurantDetailsPage = () => {
   const handleAddToCart = (food) => {
     addToCart({
       ...food,
-      restaurant: restaurant.name
+      restaurant: restaurant.full_name
     });
     setToastMessage(`${food.name} added to cart!`);
     setShowToast(true);
@@ -103,7 +104,7 @@ const RestaurantDetailsPage = () => {
 
           <div className={styles.restaurantHeader}>
             <div className={styles.restaurantInfo}>
-              <h1 className={styles.restaurantName}>{restaurant.name}</h1>
+              <h1 className={styles.restaurantName}>{restaurant.full_name}</h1>
 
               <div className={styles.contactInfo}>
                 <div className={styles.infoItem}>
@@ -153,15 +154,15 @@ const RestaurantDetailsPage = () => {
                 {foods.map((food) => (
                   <FoodCard
                     key={food.id}
-                    image={food.image}
+                    image={getFoodImageUrl(food)}
                     title={food.name}
-                    restaurant={restaurant.name}
+                    restaurant={restaurant.full_name}
                     price={food.price}
-                    oldPrice={food.oldPrice}
+                    oldPrice={food.old_price}
                     discount={food.discount}
                     portions={food.quantity}
                     isAvailable={food.is_available !== undefined ? food.is_available : true}
-                    pickupTime={food.expiresAt ? new Date(food.expiresAt).toLocaleString() : null}
+                    pickupTime={food.expires_at ? new Date(food.expires_at).toLocaleString() : null}
                     onAddClick={() => handleAddToCart(food)}
                   />
                 ))}

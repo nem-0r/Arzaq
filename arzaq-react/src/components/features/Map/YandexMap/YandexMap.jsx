@@ -17,7 +17,7 @@ const YandexMap = () => {
   useEffect(() => {
     const loadRestaurants = async () => {
       try {
-        const data = await restaurantService.getAllRestaurants({ status: 'approved' });
+        const data = await restaurantService.getAllRestaurants({ approved_only: true });
         setRestaurants(data);
       } catch (err) {
         console.error('Error loading restaurants:', err);
@@ -72,7 +72,7 @@ const YandexMap = () => {
         restaurants.forEach((restaurant) => {
           // Check if restaurant has valid coordinates
           if (!restaurant.latitude || !restaurant.longitude) {
-            console.warn(`Restaurant ${restaurant.name} has no coordinates`);
+            console.warn(`Restaurant ${restaurant.full_name} has no coordinates`);
             return;
           }
 
@@ -81,7 +81,7 @@ const YandexMap = () => {
           const placemark = new window.ymaps.Placemark(
             coords,
             {
-              balloonContentHeader: `<strong>${restaurant.name}</strong>`,
+              balloonContentHeader: `<strong>${restaurant.full_name}</strong>`,
               balloonContentBody: `
                 <p>${restaurant.address}</p>
                 ${restaurant.description ? `<p style="margin-top: 8px; color: #6b7280;">${restaurant.description}</p>` : ''}
@@ -93,7 +93,7 @@ const YandexMap = () => {
                   View Details
                 </a>
               `,
-              hintContent: restaurant.name
+              hintContent: restaurant.full_name
             },
             {
               preset: 'islands#restaurantIcon',

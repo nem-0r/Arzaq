@@ -11,6 +11,7 @@ import { useTranslation } from '../../hooks/useTranslation';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../hooks/useAuth';
 import { foodService } from '../../api/services';
+import { getFoodImageUrl } from '../../utils/imageUrl';
 import styles from './HomePage.module.css';
 
 const HomePage = () => {
@@ -138,7 +139,7 @@ const HomePage = () => {
             foods.map((food) => (
               <FoodCard
                 key={food.id}
-                image={food.image || '/placeholder-food.jpg'}
+                image={getFoodImageUrl(food)}
                 title={food.name}
                 restaurant={food.restaurant_name}
                 restaurantId={food.restaurant_id}
