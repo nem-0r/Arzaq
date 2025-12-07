@@ -1,4 +1,6 @@
 # Dockerfile for Railway deployment
+# This file is in the root of the project and builds the arzaq-backend
+
 FROM python:3.11-slim
 
 # Set working directory
@@ -10,14 +12,14 @@ RUN apt-get update && apt-get install -y \
     postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
-
-COPY requirements.txt .
+# Copy requirements file from arzaq-backend
+COPY arzaq-backend/requirements.txt .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
-COPY . .
+# Copy application code from arzaq-backend
+COPY arzaq-backend/ .
 
 # Create uploads directory
 RUN mkdir -p uploads/qr_codes
