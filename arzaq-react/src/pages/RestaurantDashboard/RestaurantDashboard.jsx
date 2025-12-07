@@ -3,17 +3,14 @@ import React, { useState, useEffect } from 'react';
 import Header from '../../components/layout/Header/Header';
 import BottomNav from '../../components/layout/BottomNav/BottomNav';
 import ImageUpload from '../../components/common/ImageUpload/ImageUpload';
-import RestaurantOrders from '../../components/features/Restaurant/RestaurantOrders/RestaurantOrders';
-import PayBoxSettings from '../../components/features/Restaurant/PayBoxSettings/PayBoxSettings';
 import { restaurantProfileService, foodService } from '../../api/services';
-import { IoAdd, IoRestaurant, IoTrash, IoCheckmarkCircle, IoCloseCircle, IoTime, IoReceipt, IoWallet } from 'react-icons/io5';
+import { IoAdd, IoRestaurant, IoTrash, IoCheckmarkCircle, IoCloseCircle, IoTime } from 'react-icons/io5';
 import styles from './RestaurantDashboard.module.css';
 
 const RestaurantDashboard = () => {
   const [profile, setProfile] = useState(null);
   const [profileExists, setProfileExists] = useState(false);
   const [foods, setFoods] = useState([]);
-  const [activeTab, setActiveTab] = useState('foods'); // 'foods', 'orders', 'settings'
   const [showFoodForm, setShowFoodForm] = useState(false);
   const [showProfileForm, setShowProfileForm] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -219,38 +216,11 @@ const RestaurantDashboard = () => {
               <h1>{profile.full_name}</h1>
               <p className={styles.address}>{profile.address || 'No address set'}</p>
             </div>
-            {activeTab === 'foods' && (
-              <button
-                className={styles.addBtn}
-                onClick={() => setShowFoodForm(true)}
-              >
-                <IoAdd /> Add Food
-              </button>
-            )}
-          </div>
-
-          {/* Tabs */}
-          <div className={styles.tabs}>
             <button
-              className={`${styles.tab} ${activeTab === 'foods' ? styles.activeTab : ''}`}
-              onClick={() => setActiveTab('foods')}
+              className={styles.addBtn}
+              onClick={() => setShowFoodForm(true)}
             >
-              <IoRestaurant size={20} />
-              <span>My Foods</span>
-            </button>
-            <button
-              className={`${styles.tab} ${activeTab === 'orders' ? styles.activeTab : ''}`}
-              onClick={() => setActiveTab('orders')}
-            >
-              <IoReceipt size={20} />
-              <span>Orders</span>
-            </button>
-            <button
-              className={`${styles.tab} ${activeTab === 'settings' ? styles.activeTab : ''}`}
-              onClick={() => setActiveTab('settings')}
-            >
-              <IoWallet size={20} />
-              <span>PayBox Settings</span>
+              <IoAdd /> Add Food
             </button>
           </div>
 
@@ -363,54 +333,40 @@ const RestaurantDashboard = () => {
             </div>
           )}
 
-          {/* Tab Content */}
-          {activeTab === 'foods' && (
-            <div className={styles.foodsGrid}>
-              {foods.length === 0 ? (
-                <div className={styles.emptyState}>
-                  <p>No food items yet. Click "Add Food" to create your first listing!</p>
-                </div>
-              ) : (
-                foods.map((food) => (
-                  <div key={food.id} className={styles.foodCard}>
-                    {food.image && (
-                      <img src={food.image} alt={food.name} className={styles.foodImage} />
-                    )}
-                    <div className={styles.foodInfo}>
-                      <h3>{food.name}</h3>
-                      <p className={styles.foodDesc}>{food.description}</p>
-                      <div className={styles.foodPrice}>
-                        <span className={styles.newPrice}>₸{food.price}</span>
-                        {food.old_price && (
-                          <span className={styles.oldPrice}>₸{food.old_price}</span>
-                        )}
-                        {food.discount && (
-                          <span className={styles.discount}>{food.discount}% OFF</span>
-                        )}
-                      </div>
-                      <p className={styles.foodQty}>Quantity: {food.quantity}</p>
+          <div className={styles.foodsGrid}>
+            {foods.length === 0 ? (
+              <div className={styles.emptyState}>
+                <p>No food items yet. Click "Add Food" to create your first listing!</p>
+              </div>
+            ) : (
+              foods.map((food) => (
+                <div key={food.id} className={styles.foodCard}>
+                  {food.image && (
+                    <img src={food.image} alt={food.name} className={styles.foodImage} />
+                  )}
+                  <div className={styles.foodInfo}>
+                    <h3>{food.name}</h3>
+                    <p className={styles.foodDesc}>{food.description}</p>
+                    <div className={styles.foodPrice}>
+                      <span className={styles.newPrice}>₸{food.price}</span>
+                      {food.old_price && (
+                        <span className={styles.oldPrice}>₸{food.old_price}</span>
+                      )}
+                      {food.discount && (
+                        <span className={styles.discount}>{food.discount}% OFF</span>
+                      )}
                     </div>
-                    <div className={styles.foodActions}>
-                      <button className={styles.deleteBtn} onClick={() => handleDeleteFood(food.id)}>
-                        <IoTrash /> Delete
-                      </button>
-                    </div>
+                    <p className={styles.foodQty}>Quantity: {food.quantity}</p>
                   </div>
-                ))
-              )}
-            </div>
-          )}
-
-          {activeTab === 'orders' && (
-            <RestaurantOrders />
-          )}
-
-          {activeTab === 'settings' && (
-            <PayBoxSettings
-              currentProfile={profile}
-              onUpdate={(updatedProfile) => setProfile(updatedProfile)}
-            />
-          )}
+                  <div className={styles.foodActions}>
+                    <button className={styles.deleteBtn} onClick={() => handleDeleteFood(food.id)}>
+                      <IoTrash /> Delete
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
         </div>
       </main>
 

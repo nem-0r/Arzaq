@@ -13,8 +13,6 @@ import './styles/global.css';
 const HomePage = lazy(() => import('./pages/HomePage/HomePage'));
 const MapPage = lazy(() => import('./pages/MapPage/MapPage'));
 const CartPage = lazy(() => import('./pages/CartPage/CartPage'));
-const CheckoutPage = lazy(() => import('./pages/CheckoutPage/CheckoutPage'));
-const OrderSuccessPage = lazy(() => import('./pages/OrderSuccessPage/OrderSuccessPage'));
 const CommunityPage = lazy(() => import('./pages/CommunityPage/CommunityPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage/ProfilePage'));
 const LoginPage = lazy(() => import('./pages/LoginPage/LoginPage'));
@@ -42,8 +40,6 @@ function App() {
                   <Route path="/" element={<HomePage />} />
                   <Route path="/map" element={<MapPage />} />
                   <Route path="/cart" element={<CartPage />} />
-                  <Route path="/checkout" element={<CheckoutPage />} />
-                  <Route path="/order-success/:orderId" element={<OrderSuccessPage />} />
                   <Route path="/community" element={<CommunityPage />} />
                   <Route path="/profile" element={<ProfilePage />} />
                   <Route path="/login" element={<LoginPage />} />

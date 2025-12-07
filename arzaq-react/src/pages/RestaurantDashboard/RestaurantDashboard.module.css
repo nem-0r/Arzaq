@@ -37,42 +37,6 @@
   margin-bottom: 2rem;
 }
 
-/* Tabs */
-.tabs {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 2rem;
-  border-bottom: 2px solid #e5e7eb;
-  overflow-x: auto;
-}
-
-.tab {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.875rem 1.5rem;
-  font-size: 0.9375rem;
-  font-weight: 600;
-  color: #6b7280;
-  background: none;
-  border: none;
-  border-bottom: 3px solid transparent;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-}
-
-.tab:hover {
-  color: #22c55e;
-  background: #f0fdf4;
-}
-
-.tab.activeTab {
-  color: #22c55e;
-  border-bottom-color: #22c55e;
-  background: #f0fdf4;
-}
-
 .addBtn {
   display: flex;
   align-items: center;
